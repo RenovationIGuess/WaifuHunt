@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "format": "prettier --single-quote --trailing-comma all --write --tab-width 2 src/**/*.{js,json,scss}",
-    "start": "nodemon --inspect index.js",
+    "start": "node index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
