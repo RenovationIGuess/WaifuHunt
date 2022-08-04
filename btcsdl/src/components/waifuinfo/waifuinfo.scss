@@ -1,0 +1,40 @@
+.heart-icon {
+    color: #fff;
+    background: #fb9ec4;
+    border-radius: 6px;
+    font-size: 32px;
+    padding: 8px;
+    border: none;
+    margin-right: 8px;
+
+    &:hover {
+        background: #ff6fa5;
+        cursor: pointer;
+    }
+}
+
+.heartOn {
+    background: #ff6fa5;
+}
+
+.trash-icon {
+    color: #fff;
+    background: #c0c0c0;
+    border-radius: 6px;
+    font-size: 32px;
+    padding: 8px;
+    border: none;
+    pointer-events: none;
+
+    &:hover {
+        background: #9a9a9a;
+    }
+}
+
+.ok-to-click {
+    background: #9a9a9a;
+}
+
+.image-label {
+    position: relative;
+}

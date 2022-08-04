@@ -1,0 +1,131 @@
+.table-icon {
+  font-size: 36px;
+  color: #8592a3;
+  border-radius: 6px;
+  padding: 8px;
+
+  &:hover {
+    color: #657ef8;
+  	background-color: #eff2ff;
+  }
+	margin: 0 4px;
+}
+
+.table-icon.chosen {
+  color: #657ef8;
+  background-color: #eff2ff;
+}
+
+.alert-icon-success {
+  margin-right: 6px;
+  font-size: 24px;
+  color: rgb(0, 182, 0);
+}
+
+.alert-icon-error {
+  margin-right: 6px;
+  font-size: 24px;
+  color: rgb(223, 33, 33);
+}
+
+.pagination {
+  display: flex;
+	/* justify-content: center; */
+	gap: 8px;
+	align-items: center;
+	padding: 4px 8px;
+	border: none;
+	list-style-type: none;
+	margin-block-start: 0;
+	margin-block-end: 0;
+	padding-inline-start: 0;
+}
+
+.prev-link {
+  display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4px 8px;
+	color: #657ef8;
+	font-size: 14px;
+	background-color: #e1e7ff;
+	border: none;
+	border-radius: 6px;
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		background-color: #657ef8;
+		color: #fff;
+		cursor: pointer;
+	}
+}
+
+.page-link {
+  display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4px 8px;
+	color: #657ef8;
+	font-size: 14px;
+	background-color: #e1e7ff;
+	border: none;
+	border-radius: 6px;
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		background-color: #657ef8;
+		color: #fff;
+		cursor: pointer;
+	}
+}
+
+.next-link {
+  display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4px 8px;
+	color: #657ef8;
+	font-size: 14px;
+	background-color: #e1e7ff;
+	border: none;
+	border-radius: 6px;
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		background-color: #657ef8;
+		color: #fff;
+		cursor: pointer;
+	}
+}
+
+.page-active {
+  display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4px 8px;
+	font-size: 14px;
+	background-color: #657ef8;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		cursor: pointer;
+	}
+}
+
+.page-disabled {
+  display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4px 8px;
+	color: #657ef8;
+	font-size: 16px;
+	background-color: #e1e7ff;
+	border: none;
+	border-radius: 6px;
+	transition: all 0.2s ease-in-out;
+	pointer-events: none;
+	opacity: 0.5;
+}

@@ -1,0 +1,184 @@
+.slider {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  margin-top: -80px;
+}
+
+.slideShowSlider {
+  white-space: nowrap;
+  z-index: 1;
+  transition: 1s ease;
+}
+
+.slide {
+  /* position: absolute;
+  top: 0;
+  left: 0; */
+  width: 100%;
+  /* height: 100%; */
+  display: inline-block;
+}
+
+.slideShowImgs {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.slideShowImg {
+  display: inline-block;
+  width: 75px;
+  margin: 0 6px;
+  opacity: 0.5;
+
+  &:hover {
+    cursor: pointer;
+    opacity: 1;
+  }
+}
+
+.slideShowImg.active {
+  opacity: 1;
+}
+
+.imageShow {
+  width: 75px;
+  border-radius: 5px;
+}
+
+.timeline {
+  width: 100%;
+  height: 3px;
+  background: rgba(214,214,214,.6);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity .3s, visibility .3s; 
+  border-radius: 2px;
+  visibility: hidden;
+  margin-top: 3px;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: inherit;
+    /* -webkit-transform: translateX(-100%); */
+    transform: translateX(-100%);
+    /* transition: 5s ease; */
+  }
+}
+
+.timeline.isactive {
+  visibility: visible;
+  opacity: 1;
+}
+
+.timeline.isactive::after {
+  transition: transform 5s linear, -webkit-transform 5s linear;
+  transform: translateX(0);
+}
+
+@media screen and (min-width: 600px) {
+  .slide img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.slide img {
+  width: 100%;
+  z-index: 1;
+  /* height: 100%; */
+}
+
+.current {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.content {
+  position: absolute;
+  top: 23rem;
+  left: 5rem;
+  opacity: 0;
+  width: 50%;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  white-space: normal;
+  border-radius: 10px;
+  /* word-break: break-all; */
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  animation: slide-up 1s ease 0.5s;
+  // animation-delay: 1s;
+  animation-fill-mode: forwards;
+  visibility: hidden;
+}
+
+@keyframes slide-up {
+  0% {
+    visibility: visible;
+    top: 23rem;
+  }
+  100% {
+    visibility: visible;
+    top: 17rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .content {
+    width: 80%;
+  }
+}
+
+.heading {
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 6px rgb(51 51 51 / 60%);
+}
+
+.content > * {
+  color: #fff;
+  margin-bottom: 1rem;
+}
+
+.current .content {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s ease;
+}
+
+.arrow {
+  background-color: transparent;
+  color: #fff;
+  cursor: pointer;
+  height: 5rem;
+  width: 5rem;
+  position: absolute;
+  top: 40%;
+  z-index: 999;
+}
+
+.next {
+  right: 1.5rem;
+}
+
+.prev {
+  left: 1.5rem;
+}
+
+hr {
+  height: 2px;
+  background: white;
+  width: 50%;
+}
