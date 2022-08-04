@@ -1,8 +1,8 @@
 export const apiUrl =
   /* "http://localhost:8000/api" */
   process.env.NODE_ENV !== "production"
-    ? "https://secret-shore-34531.herokuapp.com/api"
-    : "";
+    ? "http://localhost:8000/api"
+    : "https://secret-shore-34531.herokuapp.com/api";
 /* ? "http://localhost:8000/api"
     : "https://enigmatic-tor-59304.herokuapp.com/api"; */
 /* ? "https://enigmatic-tor-59304.herokuapp.com/api"
