@@ -3,8 +3,9 @@ const app = express();
 const cors = require('cors');
 require('dotenv').config()
 const corsOption = {
-  origin: 'https://magnificent-parfait-b65efb.netlify.app/',
+  origin: '*',
   credentials: true,
+  /* optionSuccessStatus: 200, */
 };
 const port = process.env.PORT || 8000;
 
