@@ -2,9 +2,10 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
-/* const corsOption = {
-  origin: 'http://localhost:8000',
-}; */
+const corsOption = {
+  origin: 'https://magnificent-parfait-b65efb.netlify.app/',
+  credentials: true,
+};
 const port = process.env.PORT || 8000;
 
 const routes = require('./routes');
@@ -19,7 +20,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }),);
 // parse requests of content-type - application/json
 app.use(express.json({ limit: '100mb' }));
 /* app.use(cors(corsOption)); */
-app.use(cors());
+app.use(cors(corsOption));
 
 routes(app);
 
