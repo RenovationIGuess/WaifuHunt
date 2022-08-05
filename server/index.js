@@ -21,7 +21,9 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }),);
 // parse requests of content-type - application/json
 app.use(express.json({ limit: '100mb' }));
 /* app.use(cors(corsOption)); */
-app.use(cors(corsOption));
+app.use(cors({
+  origin: "https://magnificent-parfait-b65efb.netlify.app",
+}));
 
 routes(app);
 
