@@ -1,15 +1,7 @@
 export const apiUrl =
-  /* "http://localhost:8000/api" */
   process.env.NODE_ENV !== "production"
     ? "http://localhost:8000/api"
     : "https://secret-shore-34531.herokuapp.com/api";
-/* ? "http://localhost:8000/api"
-    : "https://enigmatic-tor-59304.herokuapp.com/api"; */
-/* ? "https://enigmatic-tor-59304.herokuapp.com/api"
-    : "http://localhost:8000/api"; */
-// https://enigmatic-tor-59304.herokuapp.com/api
-// https://enigmatic-tor-59304.herokuapp.com/
-// http://localhost:8000/api
 
 export const LOCAL_STORAGE_TOKEN_NAME = "waifu-hunt";
 export const TIME_STORAGE = "time-counter";
