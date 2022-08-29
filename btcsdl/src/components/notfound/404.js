@@ -17,7 +17,7 @@ const NotFound = () => {
       <Container>
         <Nav>
           <NavbarContainer>
-            <NavLogo to="/">
+            <NavLogo to="/postlist">
               <Img src={WebLogo} alt="weblogo" />
             </NavLogo>
           </NavbarContainer>

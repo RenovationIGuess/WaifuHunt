@@ -1,0 +1,44 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* font-family: 'Encode Sans Expanded', sans-serif; */
+  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+  /* overflow-x: hidden; */
+}
+
+/* html{
+  height: -webkit-fill-available;
+}  */
+
+::-webkit-scrollbar {
+  width: 16px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  /* box-shadow: inset 0 0 5px grey; */
+  background-color: rgba(0,0,0,0);
+}
+
+::-webkit-scrollbar-track-piece {
+  background-color: rgba(0,0,0,0);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: #dde3ec;
+  border-radius: 9px;
+  border: 4px solid rgba(0,0,0,0);
+  background-clip: content-box;
+
+  &:hover {
+    background-color: #e1e7ff;
+  }
+}
+
+body {
+  /* height: 100%;
+  width: 100%; */
+  background: #f5f6fb;
+}

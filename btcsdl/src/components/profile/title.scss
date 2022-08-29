@@ -47,6 +47,10 @@
   padding: 1px 3px;
   text-align: center;
   border-radius: 5px;
+
+  &:hover {
+		cursor: pointer;
+	}
 }
 
 .normal-title {
@@ -58,6 +62,10 @@
   padding: 1px 3px;
   text-align: center;
   border-radius: 5px;
+
+  &:hover {
+		cursor: pointer;
+	}
 }
 
 .king-harem {

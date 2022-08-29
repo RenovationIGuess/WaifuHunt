@@ -5,7 +5,7 @@ export const homeObjectOne = {
   lightTextDesc: true,
   topLine: 'About us',
   headLine: 'Về chúng tôi',
-  description: 'Thông tin các thành viên nhóm',
+  description: 'Thật ra chỉ có 1 mình tôi - Ramu thôi :D',
   buttonLabel: 'Đi tìm hiểu',
   imgStart: false,
   img: require('../../images/yaesho.png'),

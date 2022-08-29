@@ -21,7 +21,7 @@ const AuthContextProvider = ({ children }) => {
 
     try {
       const response = await axios.get(`${apiUrl}/auth`);
-      await axios.patch(`${apiUrl}/user/edit/title`)
+      await axios.patch(`${apiUrl}/user/edit/title`);
       if (response.data.success) {
         dispatch({
           type: "SET_AUTH",
@@ -104,10 +104,7 @@ const AuthContextProvider = ({ children }) => {
   // const change avatar
   const changeAva = async (userAva) => {
     try {
-      const response = await axios.patch(
-        `${apiUrl}/user/edit/ava`,
-        userAva
-      );
+      const response = await axios.patch(`${apiUrl}/user/edit/ava`, userAva);
       await loadUser();
       return response.data;
     } catch (err) {
@@ -131,64 +128,99 @@ const AuthContextProvider = ({ children }) => {
 
   const changeInfo = async (userInfo) => {
     try {
-      const response = await axios.patch(`${apiUrl}/user/edit/info`, userInfo)
-      await loadUser()
-      return response.data
+      const response = await axios.patch(`${apiUrl}/user/edit/info`, userInfo);
+      await loadUser();
+      return response.data;
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   const rollAndGetWaifu = async (waifuId) => {
     try {
-      const response = await axios.patch(`${apiUrl}/user/edit/getwaifu`, waifuId)
-      await loadUser()
-      return response.data
+      const response = await axios.patch(
+        `${apiUrl}/user/edit/getwaifu`,
+        waifuId
+      );
+      await loadUser();
+      return response.data;
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   const addWishlist = async (waifuId) => {
     try {
-      const response = await axios.patch(`${apiUrl}/user/edit/wishwaifu`, waifuId)
-      await loadUser()
-      return response.data
+      const response = await axios.patch(
+        `${apiUrl}/user/edit/wishwaifu`,
+        waifuId
+      );
+      await loadUser();
+      return response.data;
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
-  
+  };
+
   const removeWishlist = async (waifuId) => {
-    console.log(waifuId)
+    console.log(waifuId);
     try {
-      const response = await axios.patch(`${apiUrl}/user/edit/unwish`, waifuId)
-      await loadUser()
-      return response.data
+      const response = await axios.patch(`${apiUrl}/user/edit/unwish`, waifuId);
+      await loadUser();
+      return response.data;
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   const deleteWaifu = async (waifuId) => {
     try {
-      const response = await axios.patch(`${apiUrl}/user/edit/delwaifu`, waifuId)
-      await loadUser()
-      return response.data
+      const response = await axios.patch(
+        `${apiUrl}/user/edit/delwaifu`,
+        waifuId
+      );
+      await loadUser();
+      return response.data;
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   const increaseRoll = async () => {
     try {
-      const response = await axios.patch(`${apiUrl}/user/edit/incroll`)
-      await loadUser()
-      return response.data
+      const response = await axios.patch(`${apiUrl}/user/edit/incroll`);
+      await loadUser();
+      return response.data;
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
+
+  const followUser = async (followId) => {
+    try {
+      const response = await axios.patch(
+        `${apiUrl}/user/edit/follow/${followId.followid}`,
+        followId
+      );
+      await loadUser();
+      return response.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const unfollowUser = async (followId) => {
+    try {
+      const response = await axios.patch(
+        `${apiUrl}/user/edit/unfollow/${followId.followid}`,
+        followId
+      );
+      await loadUser();
+      return response.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   // Context data
   const authContextData = {
@@ -203,6 +235,8 @@ const AuthContextProvider = ({ children }) => {
     removeWishlist,
     deleteWaifu,
     increaseRoll,
+    followUser,
+    unfollowUser,
     authState,
   };
 

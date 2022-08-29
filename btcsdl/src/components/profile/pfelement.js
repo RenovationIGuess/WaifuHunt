@@ -1,10 +1,16 @@
 import styled from "styled-components";
 import { Link as LinkRouter } from "react-router-dom";
+import { Link as LinkScroll } from 'react-scroll'
 import { RiSearchLine } from "react-icons/ri";
 import { FiDatabase } from "react-icons/fi";
 import { RiProjectorLine } from "react-icons/ri";
-import { MdManageAccounts } from "react-icons/md";
-/* import { Link as LinkScroll } from 'react-scroll' */
+import { MdManageAccounts, MdOutlineCancel } from "react-icons/md";
+import { AiOutlineLike, AiFillLike, AiOutlineComment } from "react-icons/ai"
+import { HiCheck } from "react-icons/hi"
+import { BsTrashFill } from "react-icons/bs"
+import { FaRegEdit } from "react-icons/fa"
+import { IoIosCreate } from "react-icons/io";
+import PostsPart from '../../images/posts.png'
 
 export const Container = styled.div`
   /* display: flex;
@@ -24,6 +30,7 @@ export const Container = styled.div`
   display: ${(props) => (props.dark ? "none" : "block")}; 
   z-index: ${(props) => (props.dark ? "1100" : "1")}; */
   opacity ${(props) => (props.dark ? "0.5" : "1")};
+  margin-bottom: 80px;
 `;
 
 export const ContainerModal = styled.div`
@@ -44,7 +51,7 @@ export const Nav = styled.nav`
   background: rgb(0, 0, 0);
   /* -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px); */
-  height: 80px;
+  height: 105px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,6 +60,8 @@ export const Nav = styled.nav`
   right: 0;
   top: 0;
   z-index: 999;
+  padding-bottom: 25px;
+  background-color: #f5f6fb;
 
   @media screen and {
     max-width: 960px;
@@ -72,6 +81,7 @@ export const NavbarContainer = styled.div`
   width: 100%;
   padding: 0 24px;
   border-bottom: 1px solid rgba(221, 221, 221, 0.2);
+  background-color: #000;
 `;
 
 export const NavLogo = styled(LinkRouter)`
@@ -149,6 +159,8 @@ export const SearchBarContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  border: none;
+  outline: none;
 
   &::before {
     content: "";
@@ -158,6 +170,8 @@ export const SearchBarContainer = styled.div`
     justify-content: flex-start;
     inset: 0;
     border-radius: 10px;
+    border: none;
+    outline: none;
     padding: 3px;
     background: linear-gradient(
       to top right,
@@ -204,8 +218,10 @@ export const SearchBar = styled.input`
   width: 100%;
   padding: 8px 10px 8px 30px;
   outline: none;
+  border: none;
   border-radius: 10px;
   margin-left: -26px;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2);
 `;
 
 export const User = styled.div`
@@ -299,21 +315,54 @@ export const StickySection = styled.div`
 `;
 
 export const LeftSideNav = styled.div`
+  position: fixed;
+  top: 80px;
+  left: calc(50% - 304px - 40px - 232px);
   background: #fff;
   width: 232px;
   /* height: 500px; */
   border-radius: 16px;
   margin-right: 25px;
   margin-top: 25px;
-  padding: 4px 16px;
+  padding: 4px;
   display: flex;
   flex-direction: column;
   /* justify-content: flex-start;
   align-items: center; */
+  z-index: 100;
 `;
 
+export const LeftSideNavLoading = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 8px;
+`
+
+export const LeftSideNavLoadingIcon = styled.img`
+  width: 100px;
+`
+
+export const InfoLoadingImg = styled.img`
+  width: 300px;
+`
+
+export const LeftSideNavLoadingDiv = styled.div`
+  font-size: 14px;
+  margin-top: 8px;
+  color: #8592a3;
+`
+
+export const AvaBgLoadingDiv = styled.div`
+  font-size: 16px;
+  line-height: 24px;
+  margin-top: 16px;
+  color: #8592a3;
+`
+
 export const LeftNavWrap = styled(LinkRouter)`
-  padding: 4px;
+  padding: 4px 12px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -345,6 +394,14 @@ export const Database = styled(FiDatabase)`
   display: flex;
   align-items: center;
 `;
+
+export const Posting = styled(IoIosCreate)`
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+`
 
 export const Prj = styled(RiProjectorLine)`
   width: 30px;
@@ -384,9 +441,31 @@ export const AvaBgSection = styled.div`
   margin-top: 25px;
   margin-right: 25px;
   background-image: url(${(props) => props.bgImage});
-  background-color: #8592a3;
+  background-color: #fff;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
+  background-position: top;
+`;
+
+export const AvaBgSectionLoading = styled.div`
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  position: relative;
+  border-radius: 16px;
+  border: none;
+  overflow: hidden;
+  width: 608px;
+  height: 428px;
+  margin-top: 25px;
+  margin-right: 25px;
+  background-image: url(${(props) => props.bgImage});
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-size: contain;
   background-position: top;
 `;
 
@@ -483,6 +562,9 @@ export const Title = styled.span`
 `;
 
 export const Contact = styled.div`
+  position: fixed;
+  top: 80px;
+  right: calc(50% - 304px - 272px);
   background: #fff;
   width: 272px;
   /* height: 500px; */
@@ -493,6 +575,7 @@ export const Contact = styled.div`
   word-wrap: break-word;
   word-break: break-word;
   padding: 4px 16px;
+  /* z-index: 10; */
 `;
 
 export const ContactHeader = styled.header`
@@ -585,7 +668,7 @@ export const List = styled.div`
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin: 25px 0;
+  margin: 16px 0;
 `;
 
 export const ListWrap = styled.div`
@@ -618,7 +701,7 @@ export const ToTopButton = styled(LinkRouter)`
   position: fixed;
   /* right: calc(50% - 329px - 50px); */
   right: 25px;
-  bottom: 105px;
+  bottom: 25px;
   z-index: 990;
   width: 50px;
   display: flex;
@@ -663,6 +746,34 @@ export const EditButton = styled.button`
     cursor: pointer;
   }
 `;
+
+export const FollowedButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 30px;
+  margin-top: 68px;
+  line-height: 30px;
+  height: 30px;
+  color: #8592a3;
+  font-size: 20px;
+  background-color: #f1f4f9;
+  border: none;
+  border-radius: 16px;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #8592a3;
+    color: #fff;
+    cursor: pointer;
+  }
+`;
+
+export const FollowedIcon = styled(HiCheck)`
+  /* font-size: inherit;
+  font-style: normal; */
+  line-height: 1;
+`
 
 export const EditIconWrap = styled.div`
   position: absolute;
@@ -712,7 +823,7 @@ export const AvaToChoose = styled.img`
 
 export const BgToChoose = styled.img`
   width: 100%;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
   box-shadow: ${(props) =>
     props.active ? "0 1px 8px 0 rgba(0, 0, 0, 0.2)" : ""};
@@ -902,4 +1013,600 @@ export const TitleModal = styled.div`
   padding: 8px 16px;
   max-height: 525px;
   overflow: auto;
+`
+
+export const PostWrap = styled.div`
+  /* margin: 8px 0; */
+  width: 608px;
+  min-height: 76px;
+  height: auto;
+  cursor: pointer;
+  background: no-repeat url(${PostsPart});
+  background-size: 100% 100%;
+  border-radius: 16px;
+  padding: 16px 148px 16px 20px;
+  position: relative;
+  overflow: hidden;
+  margin-right: 25px;
+`
+
+export const PostEntryTitle = styled.p`
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+  color: #fff;
+`
+
+export const PostEntryInfo = styled.p`
+  font-size: 14px;
+  color: rgba(255,255,255,.65);
+  line-height: 20px;
+  max-height: 40px;
+  word-wrap: break-word;
+  word-break: break-word;
+`
+
+// For a single post
+export const PostsContainer = styled.div`
+  padding: 16px;
+  border-radius: 16px;
+  background-color: #fff;
+  width: 608px;
+  margin-right: 25px;
+  margin-bottom: 8px;
+  height: auto;
+`
+
+export const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+  justify-content: space-between;
+`
+
+export const CardUserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  max-width: 100%;
+  width: 100%;
+`
+
+export const CardArticle = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+`
+
+export const PostAva = styled(LinkRouter)`
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  position: relative;
+`
+
+export const PostAvaImg = styled.img`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid #f1f4f9;
+  vertical-align: top;
+  background-color: #fff;
+`
+
+export const PostCardInfo = styled.div`
+  margin-left: 12px;
+  display: inline-flex;
+  flex-grow: 1;
+  overflow: hidden;
+  flex-direction: column;
+`
+
+export const PostCardName = styled(LinkRouter)`
+  display: flex;
+  align-items: center;
+  white-space: no-wrap;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 20px;
+  text-overflow: ellipsis;
+
+  &:hover {
+    color: #657ef8;
+    cursor: pointer;
+  }
+`
+
+export const ArticleCardInfo = styled.p`
+  color: #b2bdce;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 16px;
+`
+
+export const PostRouter = styled(LinkRouter)`
+  display: block;
+  text-decoration: none;
+  outline: none;
+  background-color: rgba(0,0,0,0);
+`
+
+export const ArticleCardTitle = styled.h3`
+  overflow: hidden;
+  line-height: 24px;
+  max-height: 72px;
+  word-wrap: break-word;
+  word-break: break-word;
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #2f3f56;
+  vertical-align: top;
+  
+  &:hover {
+    color: #657ef8;
+    cursor: pointer;
+  }
+`
+
+export const ArticleCardContent = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 20px;
+  max-height: 80px;
+  word-wrap: break-word;
+  word-break: break-word;
+  margin-top: 8px;
+  color: #8592a3;
+`
+
+export const ArticleCardPreview = styled.div`
+  margin-top: 8px;
+  overflow: hidden;
+  display: flex;
+  vertical-align: top;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+`
+
+export const ArticleImage = styled.img`
+  border-radius: 8px;
+  width: 100%;
+`
+
+export const ArticleCardImg = styled.div`
+  background-image: url(${props => props.imgSrc});
+  /* width: calc(50% - 4px); */
+  width: 100%;
+  background-size: cover;
+  display: inline-block;
+  background-position: 50%;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 0 0 8px 0 rgb(0 0 0 / 4%);
+
+  &::before {
+    content: "";
+    padding-top: 100%;
+    display: block;
+  }
+`
+
+export const ArticleMark = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+`
+
+export const ArticleCardTopic = styled.div`
+  margin-top: 8px;
+`
+
+export const ArticleCardTopicLabel = styled.div`
+  display: inline-flex;
+  font-size: 14px;
+  line-height: 20px;
+  margin-right: 16px;
+`
+
+export const TopicRouter = styled(LinkRouter)`
+  color: #657ef8;
+  text-decoration: none;
+  outline: none;
+  background-color: rgba(0,0,0,0);
+  cursor: pointer;
+`
+
+export const ArticleCardFooter = styled.div`
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-start
+`
+
+export const ArticleCardData = styled.div`
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 24px;
+  justify-content: flex-end;
+`
+
+export const CardDataItem = styled.div`
+  display: flex;
+  align-items: center;
+  width: 144px;
+`
+
+export const CardItemComment = styled(LinkRouter)`
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  color: #b2bdce;
+
+  &:hover {
+    color: #657ef8;
+    cursor: pointer;
+  }
+`
+
+export const CardItemCommentScroll = styled(LinkScroll)`
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  color: #b2bdce;
+
+  &:hover {
+    color: #657ef8;
+    cursor: pointer;
+  }
+`
+
+export const CardItemLike = styled.div`
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  color: ${props => props.isLiked ? '#657ef8' : '#b2bdce'};
+
+  &:hover {
+    color: #657ef8;
+    cursor: pointer;
+  }
+`
+
+export const CardIconLike = styled(AiOutlineLike)`
+  font-size: 20px;
+  line-height: 1;
+  /* color: rgba(0, 0, 0, 0.25); */
+`
+
+export const CardIconLikeFill = styled(AiFillLike)`
+  font-size: 20px;
+  line-height: 1;
+  /* color: #657ef8; */
+`
+
+export const CardIconComment = styled(AiOutlineComment)`
+  font-size: 20px;
+  line-height: 1;
+  /* color: rgba(0, 0, 0, 0.25); */
+`
+
+export const CardDataSpan = styled.span`
+  margin-left: 8px;
+  /* color: #b2bdce; */
+  display: inline-block;
+  font-size: 12px;
+  line-height: 16px;
+`
+
+export const ArticleCardAction = styled.div`
+  display: inline-flex;
+  align-items: center;
+`
+
+export const CardAction = styled.div`
+  margin-left: 16px;
+  position: relative;
+  background-color: ${props => props.isActive ? '#657ef8' : '#e1e7ff'};
+  z-index: 100;
+  border: none;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #657ef8;
+    cursor: pointer;
+  }
+`
+
+export const FollowDiv = styled.div`
+  margin-left: 16px;
+  flex-shrink: 0;
+`
+
+export const FollowButton = styled.div`
+  width: auto;
+  padding: 0 16px;
+  background-color: #e1e7ff;
+  border-radius: 16px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #657ef8;
+  flex-shrink: 0;
+  transition-duration: .2s;
+  transition-property: background-color,color;
+  min-width: 88px;
+
+  &:hover {
+    cursor: pointer;
+    color: #fff;
+    background-color: #657ef8;
+  }
+`
+
+export const UnfollowButton = styled.div`
+  width: auto;
+  padding: 0 16px;
+  background-color: #f1f4f9;
+  border-radius: 16px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #8592a3;
+  flex-shrink: 0;
+  transition-duration: .2s;
+  transition-property: background-color,color;
+  min-width: 88px;
+
+  &:hover {
+    cursor: pointer;
+    color: #fff;
+    background-color: #8592a3;
+  }
+`
+
+export const FollowSpan = styled.span`
+  vertical-align: top;
+  display: inline-block;
+  font-weight: bold;
+`
+
+export const PostSelectMenu = styled.div`
+  display: ${props => props.isActive ? 'block' : 'none'};
+  min-width: 200px;
+  z-index: 100;
+  top: 50px;
+  right: -6px;
+  border-radius: 12px;
+  padding: 0 8px;
+  position: absolute;
+  background-color: #fff;
+  box-shadow: 0px 12px 24px rgba(47, 63, 86, 0.2);
+`
+
+export const SelectMenuTitle = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 16px;
+  line-height: 20px;
+  border-bottom: 1px solid #f1f4f9;
+  margin-bottom: 8px;
+`
+
+export const SelectMenuList = styled.ul`
+  padding: 0 0 8px 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  list-style: none;
+`
+
+export const SelectMenuItem = styled.li`
+  padding: 8px 12px;
+  margin: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.65);
+  white-space: nowrap;
+  line-height: 20px;
+  list-style: none;
+  color: #8592a3;
+
+  &:hover {
+    color: #657ef8;
+    background-color: #eff2ff;
+  }
+`
+
+export const TrashFillIcon = styled(BsTrashFill)`
+  font-size: 20px;
+  margin-right: 8px;
+  /* color: #8592a3; */
+`
+
+export const EditPostIcon = styled(FaRegEdit)`
+  font-size: 20px;
+  margin-right: 8px;
+  /* color: #8592a3; */
+`
+
+export const CancelSelectMenuIcon = styled(MdOutlineCancel)`
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+`
+
+export const SelectMenuItemSpan = styled.span`
+  /* color: #2f3f56; */
+  line-height: 22px;
+  font-size: 14px;
+`
+
+export const NavRightPart = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+export const PostIconNavContainer = styled.div`
+  position: relative;
+  margin-right: 16px;
+`
+
+export const PostIconNavWrap = styled.div`
+  display: flex;
+  padding: 8px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #fff;
+  border: none;
+
+  &:hover {
+    background: linear-gradient(
+      to top right,
+      #7bb1ff,
+      #a6aaff,
+      #f1b9f3,
+      #9dfdfd,
+      #7bb1ff,
+      #a6aaff,
+      #f1b9f3,
+      #9dfdfd,
+      #7bb1ff
+    );
+
+    -webkit-background-clip: border-box;
+    animation: rgb-text 50s infinite linear;
+    background-size: 500% 500%;
+
+    @keyframes rgb-text {
+      0% {
+        background-position: 250% -250%;
+      }
+      100% {
+        background-position: -250% 250%;
+      }
+    }
+    cursor: pointer;
+  }
+`
+
+export const PostIconNav = styled(IoIosCreate)`
+  font-size: 30px;
+  color: #2f3f56;
+`
+
+export const NavPostDialog = styled.div`
+  display: ${props => props.isTurnOn ? 'block' : 'none'};
+  position: absolute;
+  box-shadow: 0px 12px 24px rgba(47, 63, 86, 0.2);
+  background-color: #fff;
+  border-radius: 10px;
+  top: 60px;
+  right: -6px;
+  width: 364px;
+  overflow: hidden;
+`
+
+export const NavPostNew = styled.div`
+  padding: 16px 16px 0 16px;
+  margin-bottom: 0;
+  background-color: #fff;
+  border-radius: 16px;
+`
+
+export const NavPostNewContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
+export const NavPostNewItem = styled.div`
+  width: 100%;
+  height: 56px;
+  margin-bottom: 8px;
+  margin-left: 0;
+  display: inline-block;
+  flex-shrink: 0;
+  font-size: 14px;
+
+  /* &:hover {
+    cursor: pointer;
+  } */
+`
+
+export const DialogPostButton = styled.button`
+  padding: 0 14px 0 16px;
+  background-color: #f6f9fb;
+  color: #2f3f56;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  outline: none;
+  border: none;
+  width: 100%;
+  height: 100%;
+  transition-duration: .2s;
+  transition-property: background-color,color;
+
+  &:hover {
+    color: #657ef8;
+    background-color: #eff2ff;
+    cursor: pointer;
+  }
+`
+
+export const DialogSpan = styled.span`
+  font-weight: bold;
+  flex-grow: 1;
+  text-align: left;
+  line-height: 20px;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
+export const NewPostIconWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  /* width: 44px;
+  height: 44px; */
+  border-radius: 6px;
+  background-color: #c7f8e4;
+  margin-right: 16px;
+`
+
+export const NewPostIcon = styled(IoIosCreate)`
+  font-size: 24px;
+  color: #36d6b7;
+  flex-shrink: 0;
 `

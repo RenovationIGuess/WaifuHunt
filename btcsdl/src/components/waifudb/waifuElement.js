@@ -24,7 +24,7 @@ export const BodySection = styled.div`
 export const LeftSection = styled.div`
   position: fixed;
   top: 105px;
-  left: calc(50% - 384px - 32px - 232px);
+  left: calc(50% - 384px - 24px - 232px);
   background: #fff;
   width: 232px;
   border-radius: 16px;
@@ -61,7 +61,7 @@ export const RightSection = styled.div`
 `;
 
 export const Category = styled.header`
-  padding: 4px;
+  padding: 12px 0px;
   min-height: 48px;
   display: flex;
   align-items: center;
@@ -90,8 +90,9 @@ export const CategoryItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 36px;
-  border-radius: 12px;
+  /* min-height: 36px;
+  max-height: 144px; */
+  border-radius: 5px;
   color: ${props => props.isChoosen ? "#657ef8" : "#8592a3"};
   font-size: 14px;
   margin: 2px 0 4px;
@@ -486,7 +487,8 @@ export const CateList = styled.div`
   display: flex;
   flex-direction: column;
   max-height: 300px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 `
 
 export const DoneButton = styled.button`
@@ -507,4 +509,13 @@ export const DoneButton = styled.button`
     color: #000;
     cursor: pointer;
   }
+`
+
+export const CateSearchBar = styled.input`
+  width: 100%;
+  padding: 8px;
+  outline: none;  
+  border: 2px solid #8592a3;
+  border-radius: 10px;
+  /* box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2); */
 `

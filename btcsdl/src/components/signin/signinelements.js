@@ -1,5 +1,48 @@
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+
+export const LoginAll = styled.div`
+  /* background-image: url("../../images/loginpage/Bg.png"); */
+  /* background-image: url("../../images/loginpage/ColdChurl.png"); */
+  background-image: url(${props => props.img});
+  background-repeat: no-repeat;
+  background-size: 100vw 100vh;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  /* width: 100%; */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+`
+
+export const SwitchBtn = styled.button`
+
+  background-color: #657ef8;
+  color: #fff;
+  cursor: pointer;
+
+  color: ;
+  font-size: 14px;
+  background-color: ;
+
+  font-size: 16px;
+  color: ${props => props.colorState === 0 ? '#000' : '#657ef8'};
+  font-weight: 500;
+  padding: 8px 12px;
+  background-color: ${props => props.colorState === 0 ? '#f5e5cb' : '#e1e7ff'};
+  border: none;
+  border-radius: 5px;
+  margin-left: 16px;
+
+  &:hover {
+    background-color: ${props => props.colorState === 0 ? '#51332b' : '#657ef8'};
+    color: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+`
 
 export const Container = styled.div`
   min-height: 692px;
@@ -116,5 +159,15 @@ export const Text = styled.span`
   &:hover {
     color: #01bf71;
     transition: 0.3s ease-out;
+  }
+`
+
+export const ImageButtonLogin = styled.img`
+  margin-top: ${props => props.bgType === 0 ? '16px' : ''};
+  width: ${props => props.bgType === 0 ? '90px' : '150px'};
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.05);
   }
 `

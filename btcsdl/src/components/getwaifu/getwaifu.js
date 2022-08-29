@@ -20,6 +20,22 @@ import {
   CancelBtn,
   OkBtn,
   Database,
+  Posting,
+  NavRightPart,
+  PostIconNavWrap,
+  PostIconNav,
+  PostIconNavContainer,
+  NavPostDialog,
+  NavPostNew,
+  NavPostNewContent,
+  NavPostNewItem,
+  DialogPostButton,
+  DialogSpan,
+  NewPostIconWrap,
+  NewPostIcon,
+  LeftSideNavLoading,
+  LeftSideNavLoadingIcon,
+  LeftSideNavLoadingDiv,
 } from "../profile/pfelement";
 import {
   LeftSection,
@@ -56,6 +72,7 @@ import { Loading, LoadingWrap } from "../Loading";
 import { Toast, ToastMsg } from "../toastMsg";
 
 import Chilling from "../../videos/chillin.gif";
+import LoadingNav from "../../videos/loadingNav.gif";
 import HutaoAva from "../../images/hutaostick.png";
 import RaidenAva from "../../images/raidenfbi.png";
 import DoggoAva from "../../images/realdoggo.png";
@@ -70,7 +87,7 @@ import { MdKeyboardArrowRight, MdErrorOutline } from "react-icons/md";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { RiHeartsLine, RiHeartsFill } from "react-icons/ri";
 
-import Footer from "../footer";
+/* import Footer from "../footer"; */
 
 import { TIME_STORAGE, ROLL_STORAGE } from "../../contexts/constants";
 
@@ -85,6 +102,7 @@ import "../waifuinfo/waifuinfo.scss";
 import { GetButton, TrashButton } from "./getwaifuele";
 
 import Timer from "../timer";
+import { PostNewArrow } from "../postList/postListEle";
 
 const GetWaifu = () => {
   const {
@@ -132,6 +150,9 @@ const GetWaifu = () => {
   const [searchValue, setSearchValue] = useState("");
 
   const initTimer = 3600000; //in miliseconds, 3600000 = 1 hour
+
+  // Controlling NavPostDialog 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [rollTimes, setRollTimes] = useState(() => {
     const roll = window.localStorage.getItem(ROLL_STORAGE);
@@ -429,26 +450,6 @@ const GetWaifu = () => {
 
   if (!waifusLoading) {
     if (waifus.length !== 0) {
-      /* const waifuToFind = waifus.findIndex(
-        (item) => item.waifuid === parseInt(waifuId.id)
-      );
-      if (user.waifulist.length !== 0) {
-        const searchIndex = user.waifulist.findIndex(
-          (item) => item === waifus[waifuToFind]._id
-        );
-        if (searchIndex !== -1) {
-          isOwned.current = true;
-        }
-      }
-      if (user.wishlist.length !== 0) {
-        const wishIndex = user.wishlist.findIndex(
-          (item) => item === waifus[waifuToFind]._id
-        );
-        if (wishIndex !== -1) {
-          isWishlist.current = true;
-        }
-      } */
-
       waifus.sort((a, b) => {
         return b.user.length - a.user.length;
       });
@@ -476,39 +477,27 @@ const GetWaifu = () => {
             )}
           </LeftItem>
         </LeftNavWrap>
+        <LeftNavWrap to="/postlist">
+          <Posting />
+          <LeftItem>Trang chủ</LeftItem>
+        </LeftNavWrap>
         <LeftNavWrap to="/waifudb" style={{ marginBottom: "4px" }}>
           <Database />
           <LeftItem>Waifu Database</LeftItem>
         </LeftNavWrap>
-        {/* <Category>
-          <CateImg>
-            <TbListSearch />
-          </CateImg>
-          <CategoryTitle>Categories</CategoryTitle>
-        </Category>
-        <CategoryItem>
-          <div>Genshin Impact</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Genshin Impact").length})
-          </div>
-        </CategoryItem>
-        <CategoryItem>
-          <div>Love is war</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Love is war").length})
-          </div>
-        </CategoryItem>
-        <CategoryItem>
-          <div>Honkai Impact 3</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Honkai Impact 3").length}
-            )
-          </div>
-        </CategoryItem> */}
         <ContactFooter>
           <PaiFace src={Paimoe} alt="pai-logo" />
           <CopyRight>All Rights Reserved.</CopyRight>
         </ContactFooter>
+      </LeftSection>
+    );
+  } else {
+    left = (
+      <LeftSection>
+        <LeftSideNavLoading>
+          <LeftSideNavLoadingIcon src={LoadingNav} alt="loading-nav" />
+          <LeftSideNavLoadingDiv>Đang tải</LeftSideNavLoadingDiv>
+        </LeftSideNavLoading>
       </LeftSection>
     );
   }
@@ -652,7 +641,7 @@ const GetWaifu = () => {
     <>
       <Nav>
         <NavbarContainer>
-          <NavLogo to="/">
+          <NavLogo to="/postlist">
             <Img src={WebLogo} alt="weblogo" />
           </NavLogo>
           <SearchBarContainer>
@@ -670,11 +659,35 @@ const GetWaifu = () => {
               }}
             />
           </SearchBarContainer>
-          <User onClick={handleOpen}>
-            <UserAva src={userAva} alt="user-ava" />
-            <UserName>{user.name}</UserName>
-            <IoIosArrowDown />
-          </User>
+          <NavRightPart>
+            <PostIconNavContainer>
+              <PostIconNavWrap onClick={() => setIsDialogOpen(!isDialogOpen)}>
+                <PostIconNav />
+              </PostIconNavWrap>
+              <NavPostDialog isTurnOn={isDialogOpen}>
+                <div>
+                  <NavPostNew>
+                    <NavPostNewContent>
+                      <NavPostNewItem>
+                        <DialogPostButton onClick={() => navigate("/createpost")}>
+                          <NewPostIconWrap>
+                            <NewPostIcon />
+                          </NewPostIconWrap>
+                          <DialogSpan>Đăng bài viết</DialogSpan>
+                          <PostNewArrow />
+                        </DialogPostButton>
+                      </NavPostNewItem>
+                    </NavPostNewContent>
+                  </NavPostNew>
+                </div>
+              </NavPostDialog>
+            </PostIconNavContainer>
+            <User onClick={handleOpen}>
+              <UserAva src={userAva} alt="user-ava" />
+              <UserName>{user.name}</UserName>
+              <IoIosArrowDown />
+            </User>
+          </NavRightPart>
           {open && (
             <div className="dropdown">
               <ToInfoPage>Thông tin của tôi</ToInfoPage>
@@ -767,7 +780,7 @@ const GetWaifu = () => {
           {body}
         </WaifuInfoContainer>
       </MainContainer>
-      <Footer />
+      {/* <Footer /> */}
 
       <div id="snackbar">
         <Toast>

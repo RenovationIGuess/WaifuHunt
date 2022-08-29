@@ -20,6 +20,23 @@ import {
   CopyRight,
   CancelBtn,
   OkBtn,
+  Posting,
+  NavRightPart,
+  PostIconNavWrap,
+  PostIconNav,
+  PostIconNavContainer,
+  NavPostDialog,
+  NavPostNew,
+  NavPostNewContent,
+  NavPostNewItem,
+  DialogPostButton,
+  DialogSpan,
+  NewPostIconWrap,
+  NewPostIcon,
+  LeftSideNavLoading,
+  LeftSideNavLoadingIcon,
+  LeftSideNavLoadingDiv,
+  LeftSideNav,
 } from "../profile/pfelement";
 import {
   LeftSection,
@@ -68,11 +85,13 @@ import {
   CateList,
   DoneButton,
   ToEditWaifuPage,
+  CateSearchBar,
 } from "./waifuElement";
 import { Loading, LoadingWrap } from "../Loading";
 import { Toast, ToastMsg } from "../toastMsg";
 
 import Chilling from "../../videos/chillin.gif";
+import LoadingNav from "../../videos/loadingNav.gif";
 import HutaoAva from "../../images/hutaostick.png";
 import RaidenAva from "../../images/raidenfbi.png";
 import DoggoAva from "../../images/realdoggo.png";
@@ -95,7 +114,7 @@ import { MdKeyboardArrowRight, MdErrorOutline } from "react-icons/md";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
 
-import Footer from "../footer";
+/* import Footer from "../footer"; */
 import { TIME_STORAGE, ROLL_STORAGE } from "../../contexts/constants";
 
 import { Link as LinkRouter, useNavigate } from "react-router-dom";
@@ -108,6 +127,7 @@ import Timer from "../timer";
 
 import "../profile/profile.scss";
 import "./waifulist.scss";
+import { PostNewArrow } from "../postList/postListEle";
 
 const WaifuList = () => {
   const {
@@ -141,6 +161,12 @@ const WaifuList = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
 
+  // Controlling NavPostDialog
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Controll fetching data
+  const [makeChange, setMakeChange] = useState(false);
+
   const [message, setMessage] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("");
@@ -167,6 +193,7 @@ const WaifuList = () => {
   });
 
   const [searchValue, setSearchValue] = useState("");
+  const [cateSearchValue, setCateSearchValue] = useState("");
 
   const startTimer = () => {
     const deadTime = Date.now() + initTimer;
@@ -222,7 +249,7 @@ const WaifuList = () => {
       }
     }
     fetchData();
-  }, [waifusLoading]);
+  }, [makeChange, waifusLoading]);
 
   useEffect(() => {
     switch (user.avatar) {
@@ -279,6 +306,36 @@ const WaifuList = () => {
     }
   };
 
+  const handleCateSearch = () => {
+    if (cateSearchValue !== "") {
+      const searchIndex = categories.findIndex((item) =>
+        item.name.includes(cateSearchValue)
+      );
+      if (searchIndex !== -1) {
+        const source = categories[searchIndex];
+        source.state = true;
+        for (const item of categories) {
+          if (item.name !== source.name) {
+            item.state = false;
+          }
+        }
+        setIsNewCate(!isNewCate);
+        setIsCateSelected(true);
+      } else {
+        setMessage("Không tìm thấy tên category!");
+        setDesc("Hãy nhập đúng tên category muốn tìm");
+        setType("error");
+        myFunction();
+        setCateSearchValue("");
+      }
+    } else {
+      setMessage("Không tìm thấy tên category!");
+      setDesc("Hãy nhập đúng tên category muốn tìm");
+      setType("error");
+      myFunction();
+    }
+  };
+
   const handleOkModal = async () => {
     try {
       const newWaifu = await createWaifu({
@@ -298,6 +355,21 @@ const WaifuList = () => {
         setImageUrl(null);
         setImageSrcUrl(null);
         setModalOpen(false);
+        /* waifus = [...waifus, newWaifu.newWaifu];
+        waifus = waifus.push(newWaifu.newWaifu);
+        const cateIndex = categories.findIndex(
+          (c) => c.name === newWaifu.newWaifu.source
+        );
+        if (cateIndex === -1) {
+          setCategories(...categories, {
+            name: newWaifu.newWaifu.source,
+            state: false,
+          })
+          setCategories(
+            categories.push({ name: newWaifu.newWaifu.source, state: false })
+          );
+        } */
+        setMakeChange(!makeChange)
       } else {
         setMessage("Thêm thất bại!");
         setDesc(newWaifu.message);
@@ -337,8 +409,15 @@ const WaifuList = () => {
         setDesc("Sao nỡ lòng nào...");
         setType("success");
         myFunction();
+        /* const deletedWaifuIndex = waifus.findIndex((w) => w.waifuid === waifuId)
+        const deletedWaifuCate = categories.filter((c) => c.name === waifus[deletedWaifuIndex].source)
+        if (deletedWaifuCate.length === 1) {
+          setCategories(categories.filter((c) => c.name !== waifus[deletedWaifuIndex].source))
+        }
+        waifus = waifus.filter((w) => w.waifuid !== waifuId) */
+        setMakeChange(!makeChange)
       } else {
-        setMessage("Thêm thất bại!");
+        setMessage("Xóa khỏi database thất bại!");
         setDesc(delResponse.message);
         setType("error");
         myFunction();
@@ -392,6 +471,14 @@ const WaifuList = () => {
   };
 
   if (waifusLoading) {
+    left = (
+      <LeftSection>
+        <LeftSideNavLoading>
+          <LeftSideNavLoadingIcon src={LoadingNav} alt="loading-nav" />
+          <LeftSideNavLoadingDiv>Đang tải</LeftSideNavLoadingDiv>
+        </LeftSideNavLoading>
+      </LeftSection>
+    );
     body = (
       <LoadingWrap>
         <Loading src={Chilling} alt="loading-chilling" />
@@ -430,31 +517,10 @@ const WaifuList = () => {
             )}
           </LeftItem>
         </LeftNavWrap>
-        {/* <Category>
-          <CateImg>
-            <TbListSearch />
-          </CateImg>
-          <CategoryTitle>Categories</CategoryTitle>
-        </Category>
-        <CategoryItem>
-          <div>Genshin Impact</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Genshin Impact").length})
-          </div>
-        </CategoryItem>
-        <CategoryItem>
-          <div>Love is war</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Love is war").length})
-          </div>
-        </CategoryItem>
-        <CategoryItem>
-          <div>Honkai Impact 3</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Honkai Impact 3").length}
-            )
-          </div>
-        </CategoryItem> */}
+        <LeftNavWrap to="/postlist">
+          <Posting />
+          <LeftItem>Trang chủ</LeftItem>
+        </LeftNavWrap>
         <ContactFooter>
           <PaiFace src={Paimoe} alt="pai-logo" />
           <CopyRight>All Rights Reserved.</CopyRight>
@@ -491,11 +557,23 @@ const WaifuList = () => {
             )}
           </LeftItem>
         </LeftNavWrap>
+        <LeftNavWrap to="/postlist">
+          <Posting />
+          <LeftItem>Trang chủ</LeftItem>
+        </LeftNavWrap>
         <Category>
-          <CateImg>
-            <TbListSearch />
-          </CateImg>
-          <CategoryTitle>Categories</CategoryTitle>
+          <CateSearchBar
+            placeholder="Nhập tên source cần tìm"
+            type="text"
+            value={cateSearchValue}
+            onChange={(e) => setCateSearchValue(e.target.value)}
+            autoComplete="off"
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                handleCateSearch();
+              }
+            }}
+          />
         </Category>
         <CateList>
           <CategoryItem onClick={handleAllClick} isChoosen={!isCateSelected}>
@@ -514,25 +592,6 @@ const WaifuList = () => {
               </div>
             </CategoryItem>
           ))}
-          {/* <CategoryItem>
-            <div>Genshin Impact</div>
-            <div>
-              ({waifus.filter((item) => item.source === "Genshin Impact").length})
-            </div>
-          </CategoryItem>
-          <CategoryItem>
-            <div>Love is war</div>
-            <div>
-              ({waifus.filter((item) => item.source === "Love is war").length})
-            </div>
-          </CategoryItem>
-          <CategoryItem>
-            <div>Honkai Impact 3</div>
-            <div>
-              ({waifus.filter((item) => item.source === "Honkai Impact 3").length}
-              )
-            </div>
-          </CategoryItem> */}
         </CateList>
         <ContactFooter>
           <PaiFace src={Paimoe} alt="pai-logo" />
@@ -773,29 +832,40 @@ const WaifuList = () => {
       </ToTopButton>
       <Nav>
         <NavbarContainer>
-          <NavLogo to="/">
+          <NavLogo to="/postlist">
             <Img src={WebLogo} alt="weblogo" />
           </NavLogo>
-          <SearchBarContainer>
-            <SearchBarIcon />
-            <SearchBar
-              type="text"
-              placeholder="Nhập tên waifu muốn tìm"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              autoComplete="off"
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
-            />
-          </SearchBarContainer>
-          <User onClick={handleOpen}>
-            <UserAva src={userAva} alt="user-ava" />
-            <UserName>{user.name}</UserName>
-            <IoIosArrowDown />
-          </User>
+          <NavRightPart>
+            <PostIconNavContainer>
+              <PostIconNavWrap onClick={() => setIsDialogOpen(!isDialogOpen)}>
+                <PostIconNav />
+              </PostIconNavWrap>
+              <NavPostDialog isTurnOn={isDialogOpen}>
+                <div>
+                  <NavPostNew>
+                    <NavPostNewContent>
+                      <NavPostNewItem>
+                        <DialogPostButton
+                          onClick={() => navigate("/createpost")}
+                        >
+                          <NewPostIconWrap>
+                            <NewPostIcon />
+                          </NewPostIconWrap>
+                          <DialogSpan>Đăng bài viết</DialogSpan>
+                          <PostNewArrow />
+                        </DialogPostButton>
+                      </NavPostNewItem>
+                    </NavPostNewContent>
+                  </NavPostNew>
+                </div>
+              </NavPostDialog>
+            </PostIconNavContainer>
+            <User onClick={handleOpen}>
+              <UserAva src={userAva} alt="user-ava" />
+              <UserName>{user.name}</UserName>
+              <IoIosArrowDown />
+            </User>
+          </NavRightPart>
           {open && (
             <div className="dropdown">
               <ToInfoPage>Thông tin của tôi</ToInfoPage>
@@ -864,6 +934,21 @@ const WaifuList = () => {
                 className={!isActivated ? "table-icon chosen" : "table-icon"}
               />
             </LeftPart>
+            <SearchBarContainer>
+              <SearchBarIcon />
+              <SearchBar
+                type="text"
+                placeholder="Nhập tên waifu muốn tìm"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                autoComplete="off"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
+              />
+            </SearchBarContainer>
             <RightPart>
               {user.role === "admin" && (
                 <AddButton onClick={handleOpenModal}>Thêm Waifu</AddButton>
@@ -889,7 +974,7 @@ const WaifuList = () => {
           {body}
         </CenterSection>
       </PageContainer>
-      <Footer />
+      {/* <Footer /> */}
 
       <div id="snackbar">
         <Toast>

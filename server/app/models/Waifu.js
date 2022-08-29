@@ -7,19 +7,19 @@ const WaifuSchema = new Schema(
     waifuid: { type: Number },
     name: {
       type: String,
-      require: true,
+      required: true,
     },
     sourceimg: {
       type: String,
-      require: true,
+      /* required: true, */
     },
     source: {
       type: String,
-      require: true,
+      required: true,
     },
     image: {
       type: String,
-      require: true,
+      required: true,
     },
     sourcelink: {
       type: String,

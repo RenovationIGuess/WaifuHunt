@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import {
   Container,
@@ -61,11 +61,70 @@ import {
   ModalFooter,
   SelectedContainer,
   TitleModal,
+  PostEntryTitle,
+  PostWrap,
+  PostEntryInfo,
+  PostsContainer,
+  CardHeader,
+  CardUserInfo,
+  CardArticle,
+  PostAva,
+  PostCardInfo,
+  PostCardName,
+  ArticleCardInfo,
+  PostAvaImg,
+  PostRouter,
+  ArticleCardTitle,
+  ArticleCardContent,
+  ArticleCardPreview,
+  ArticleCardImg,
+  ArticleMark,
+  ArticleCardTopic,
+  ArticleCardTopicLabel,
+  TopicRouter,
+  ArticleCardFooter,
+  ArticleCardData,
+  CardDataItem,
+  CardItemLike,
+  CardIconLike,
+  CardDataSpan,
+  CardItemComment,
+  CardIconComment,
+  CardIconLikeFill,
+  ArticleCardAction,
+  CardAction,
+  PostSelectMenu,
+  SelectMenuItem,
+  SelectMenuTitle,
+  SelectMenuList,
+  TrashFillIcon,
+  SelectMenuItemSpan,
+  EditPostIcon,
+  CancelSelectMenuIcon,
+  ArticleImage,
+  Posting,
+  NavRightPart,
+  PostIconNavWrap,
+  PostIconNav,
+  PostIconNavContainer,
+  NavPostDialog,
+  NavPostNew,
+  NavPostNewContent,
+  NavPostNewItem,
+  DialogPostButton,
+  DialogSpan,
+  NewPostIconWrap,
+  NewPostIcon,
+  LeftSideNavLoading,
+  LeftSideNavLoadingIcon,
+  LeftSideNavLoadingDiv,
 } from "./pfelement";
 
 import { Loading, LoadingWrap } from "../Loading";
 
 import Chilling from "../../videos/chillin.gif";
+import LoadingNav from "../../videos/loadingNav.gif";
+import NoPost from "../../videos/loadingPost.gif";
 import WebLogo from "../../images/logoweb.png";
 import { BsChatLeftText } from "react-icons/bs";
 import LeftImage from "../../images/logoroll.svg";
@@ -76,7 +135,7 @@ import EditBtn from "../../images/editbtn.png";
 
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { MdKeyboardArrowRight, MdErrorOutline } from "react-icons/md";
-import Footer from "../footer";
+/* import Footer from "../footer"; */
 import { Link as LinkRouter } from "react-router-dom";
 import { animateScroll as scroll } from "react-scroll/modules";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -100,6 +159,7 @@ import DoggoAva from "../../images/realdoggo.png";
 
 import RollSome from "../../videos/rollsome.gif";
 import Kazubu from "../../videos/kazubu.gif";
+import Lumine from "../../videos/Lumine.gif";
 
 import LiyueBg from "../../images/liyue.jpg";
 import MondoBg from "../../images/mondo.jpg";
@@ -129,8 +189,26 @@ import { ToastMsg } from "../toastMsg";
 import { TIME_STORAGE, ROLL_STORAGE } from "../../contexts/constants";
 
 import { WaifuContext } from "../../contexts/WaifuContext";
+import { PostContext } from "../../contexts/PostContext";
+import { UserContext } from "../../contexts/UsersContext";
 
 import Timer from "../timer";
+import {
+  CloseButton,
+  ImageBg,
+  ImageContainer,
+  ImageShow,
+  PreviewContainer,
+  PreviewCounter,
+  PreviewImgHolder,
+  PreviewItem,
+  PreviewTopBar,
+  PreviewUi,
+  PreviewWrap,
+  PreviewZoomWrap,
+} from "../imagePreview";
+import { NoPostImg, NoPosts, PostNewArrow } from "../postList/postListEle";
+import { LoadingContainer } from "../createpost/createPostElement";
 
 const UserProfile = () => {
   const {
@@ -147,9 +225,25 @@ const UserProfile = () => {
     getWaifus,
   } = useContext(WaifuContext);
 
+  const {
+    postState: { posts, postsLoading },
+    getPosts,
+    likePost,
+    unlikePost,
+    deletePost,
+  } = useContext(PostContext);
+
+  const {
+    userState: { users, usersLoading },
+  } = useContext(UserContext);
+
   let body;
+  let postPart;
   let left;
   let numberOfTopTier = 0;
+  const userParamId = useParams();
+  const userParamIdInt = parseInt(userParamId.id);
+  let userParam;
 
   const navigate = useNavigate();
 
@@ -180,8 +274,20 @@ const UserProfile = () => {
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("");
 
+  // Controlling preview post image
+  const [isPreviewed, setIsPreviewed] = useState(true);
+
+  // Controlling post menu
+  const [isSelectMenuOn, setIsSelectMenuOn] = useState(false);
+
+  // Controlling NavPostDialog
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   // Used for searching
   const [searchValue, setSearchValue] = useState("");
+
+  // Control SelectedMenu
+  const [postSelectState, setPostSelectState] = useState([]);
 
   // Timeout
   const initTimer = 3600000; //in miliseconds, 3600000 = 1 hour
@@ -243,6 +349,13 @@ const UserProfile = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    async function fetchData() {
+      await getPosts();
+    }
+    fetchData();
+  }, []);
+
   const handlePageOwnClick = ({ selected: selectedPage }) => {
     setCurrentOwnPage(selectedPage);
   };
@@ -259,11 +372,13 @@ const UserProfile = () => {
     setAvaDoggo(false);
     setAvaHutao(false);
   };
+
   const handlerAvaHutao = () => {
     setAvaRaiden(false);
     setAvaDoggo(false);
     setAvaHutao(true);
   };
+
   const handlerAvaDoggo = () => {
     setAvaRaiden(false);
     setAvaDoggo(true);
@@ -298,6 +413,17 @@ const UserProfile = () => {
     setOpenTitle(true);
   };
 
+  const handleSelectMenu = (index) => {
+    postSelectState[index].state = !postSelectState[index].state;
+    for (const item of postSelectState) {
+      if (item.postid !== postSelectState[index].postid) {
+        item.state = false;
+      }
+    }
+    // use to cause rerender
+    setIsSelectMenuOn(!isSelectMenuOn);
+  };
+
   const handleOkAva = async () => {
     let newAva;
     if (AvaRaiden) {
@@ -310,6 +436,9 @@ const UserProfile = () => {
 
     await changeAva({ newAva });
     setAvaModalVisible(false);
+    setMessage("Thay đổi thành công!");
+    setDesc("Thông tin của ngài đã được lưu :D");
+    setType("success");
     myFunction();
   };
 
@@ -375,6 +504,9 @@ const UserProfile = () => {
 
     await changeBg({ newBg });
     setBgModalVisible(false);
+    setMessage("Thay đổi thành công!");
+    setDesc("Thông tin của ngài đã được lưu :D");
+    setType("success");
     myFunction();
   };
 
@@ -421,8 +553,8 @@ const UserProfile = () => {
   };
 
   const handleTitleCancel = () => {
-    setOpenTitle(false)
-  }
+    setOpenTitle(false);
+  };
 
   const handleSearch = () => {
     if (searchValue !== "") {
@@ -487,15 +619,295 @@ const UserProfile = () => {
     }
   }, [user.avatar, user.background]);
 
+  const handleLikePost = async (postId) => {
+    try {
+      const afterLikedPost = await likePost({ postid: postId });
+      if (afterLikedPost.success) {
+        setMessage("Đã tính like vào post này nha :v!");
+        setDesc("Đừng để ý thông báo này :3 :v!");
+        setType("success");
+        myFunction();
+        const newPostIndex = posts.findIndex((p) => p.postid === afterLikedPost.updatedPost.postid)
+        posts[newPostIndex] = {...afterLikedPost.updatedPost};
+      } else {
+        setMessage("Like post thất bại!");
+        setDesc(afterLikedPost.message);
+        setType("error");
+        myFunction();
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  };
+
+  const handleUnlikePost = async (postId) => {
+    try {
+      const afterUnlikedPost = await unlikePost({ postid: postId });
+      if (afterUnlikedPost.success) {
+        setMessage("Sao unlike rồi :<!");
+        setDesc("...");
+        setType("success");
+        myFunction();
+        const newPostIndex = posts.findIndex((p) => p.postid === afterUnlikedPost.updatedPost.postid)
+        posts[newPostIndex] = {...afterUnlikedPost.updatedPost};
+      } else {
+        setMessage("Unlike post thất bại!");
+        setDesc(afterUnlikedPost.message);
+        setType("error");
+        myFunction();
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleDeletePost = async (id) => {
+    try {
+      const delResponse = await deletePost(id);
+      if (delResponse.success) {
+        setMessage("Xóa post thành công!");
+        setDesc("Ơ kìa...");
+        setType("success");
+        myFunction();
+        /* posts.filter((p) => p.postid !== id); */
+        setPostSelectState(postSelectState.filter((p) => p.postid !== id));
+      } else {
+        setMessage("Xóa post thất bại!");
+        setDesc(delResponse.message);
+        setType("error");
+        myFunction();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  if (!usersLoading) {
+    const userIndex = users.findIndex(u => u.userid === userParamIdInt);
+    if (userIndex === -1) {
+      navigate("/404");
+    } else {
+      userParam = users[userIndex];
+      if (userParam.userid !== user.userid) {
+        navigate(`/otheruser/${userParam.userid}`);
+      }
+    }
+  }
+
+  if (postsLoading) {
+    postPart = (
+      <>
+        <List>
+          <div
+            style={{
+              width: "232px",
+              height: "0",
+              marginRight: "25px",
+            }}
+          ></div>
+          <PostsContainer>
+            <LoadingContainer>
+              <Loading src={Lumine} alt="loading-chilling" />
+            </LoadingContainer>
+          </PostsContainer>
+          <div
+            style={{
+              width: "272px",
+              height: "0",
+            }}
+          ></div>
+        </List>
+      </>
+    );
+  } else if (posts.length === 0) {
+    postPart = (
+      <>
+        <List>
+          <div
+            style={{
+              width: "232px",
+              height: "0",
+              marginRight: "25px",
+            }}
+          ></div>
+          <PostsContainer>
+            <NoPosts>
+              <NoPostImg src={NoPost} alt="no-posts" />
+              <EmptyText>Chưa có bài viết nào được tạo</EmptyText>
+            </NoPosts>
+          </PostsContainer>
+          <div
+            style={{
+              width: "272px",
+              height: "0",
+            }}
+          ></div>
+        </List>
+      </>
+    );
+  } else {
+    const myPost = posts.filter((post) => {
+      return post.postAuthor === user._id;
+    });
+    if (myPost.length === 0) {
+      postPart = (
+        <>
+          <List>
+            <div
+              style={{
+                width: "232px",
+                height: "0",
+                marginRight: "25px",
+              }}
+            ></div>
+            <PostsContainer>
+              <NoPosts>
+                <NoPostImg src={NoPost} alt="no-posts" />
+                <EmptyText>Chưa có bài viết nào được tạo</EmptyText>
+              </NoPosts>
+            </PostsContainer>
+            <div
+              style={{
+                width: "272px",
+                height: "0",
+              }}
+            ></div>
+          </List>
+        </>
+      );
+    } else {
+      if (postSelectState.length === 0) {
+        myPost.map((p) => postSelectState.push({
+          postid: p.postid,
+          state: false,
+        }))
+      }
+      postPart = (
+        <>
+          {myPost.map((p, i) => {
+            const LikedPostIndex = p.postLikes.findIndex(
+              (u) => u === user.userid
+            );
+            const hasLiked = LikedPostIndex !== -1 ? true : false;
+            return (
+              <>
+                <List key={p.postid}>
+                  <div
+                    style={{
+                      width: "232px",
+                      height: "0",
+                      marginRight: "25px",
+                    }}
+                  ></div>
+                  <PostsContainer key={p.postid}>
+                    <CardHeader>
+                      <CardUserInfo>
+                        <CardArticle>
+                          <PostAva to={`/user/${user.userid}`}>
+                            <PostAvaImg src={userAva} alt="user-post-ava" />
+                          </PostAva>
+                          <PostCardInfo>
+                            <PostCardName to={`/user/${user.userid}`}>
+                              {user.name}
+                            </PostCardName>
+                            <ArticleCardInfo>{p.createdAt}</ArticleCardInfo>
+                          </PostCardInfo>
+                        </CardArticle>
+                      </CardUserInfo>
+                      <ArticleCardAction>
+                        <CardAction isActive={postSelectState[i].state}>
+                          <EditIcon
+                            onClick={() => handleSelectMenu(i)}
+                            src={EditBtn}
+                            alt="edit-btn"
+                          />
+                        </CardAction>
+                        <PostSelectMenu isActive={postSelectState[i].state}>
+                          <SelectMenuTitle>Khác</SelectMenuTitle>
+                          <SelectMenuList>
+                            <LinkRouter to={`/posts/${p.postid}`}>
+                              <SelectMenuItem>
+                                <EditPostIcon src={EditBtn} alt="edit-post" />
+                                <SelectMenuItemSpan>
+                                  Chỉnh sửa bài viết
+                                </SelectMenuItemSpan>
+                              </SelectMenuItem>
+                            </LinkRouter>
+                            <SelectMenuItem
+                              onClick={() => handleDeletePost(p.postid)}
+                            >
+                              <TrashFillIcon />
+                              <SelectMenuItemSpan>Xóa bài viết</SelectMenuItemSpan>
+                            </SelectMenuItem>
+                            <SelectMenuItem onClick={() => handleSelectMenu(i)}>
+                              <CancelSelectMenuIcon />
+                              <SelectMenuItemSpan>Hủy</SelectMenuItemSpan>
+                            </SelectMenuItem>
+                          </SelectMenuList>
+                        </PostSelectMenu>
+                      </ArticleCardAction>
+                    </CardHeader>
+                    <PostRouter to={`/posts/${p.postid}`}>
+                      <ArticleCardTitle>{p.postTitle}</ArticleCardTitle>
+                      <ArticleCardContent>{p.postContent}</ArticleCardContent>
+                      {p.postImage && (
+                        <ArticleCardPreview>
+                          <ArticleImage src={p.postImage} alt="post-image" />
+                        </ArticleCardPreview>
+                      )}
+                    </PostRouter>
+                    <ArticleCardTopic>
+                      {p.hashtag.length !== 0 &&
+                        p.hashtag.map((tag) => (
+                          <ArticleCardTopicLabel>
+                            <TopicRouter to="/">{"#" + tag}</TopicRouter>
+                          </ArticleCardTopicLabel>
+                        ))}
+                    </ArticleCardTopic>
+                    <ArticleCardFooter>
+                      <ArticleCardData>
+                        <CardDataItem>
+                          <CardItemLike isLiked={hasLiked}>
+                            {hasLiked ? (
+                              <CardIconLikeFill onClick={() => handleUnlikePost(p.postid)} />
+                            ) : (
+                              <CardIconLike onClick={() => handleLikePost(p.postid)} />
+                            )}
+                            <CardDataSpan>{p.postLikes.length}</CardDataSpan>
+                          </CardItemLike>
+                        </CardDataItem>
+                        <CardDataItem>
+                          <CardItemComment to={`/posts/${p.postid}`}>
+                            <CardIconComment />
+                            <CardDataSpan>{p.comment.length}</CardDataSpan>
+                          </CardItemComment>
+                        </CardDataItem>
+                      </ArticleCardData>
+                    </ArticleCardFooter>
+                  </PostsContainer>
+                  <div
+                    style={{
+                      width: "272px",
+                      height: "0",
+                    }}
+                  ></div>
+                </List>
+              </>
+            );
+          })}
+        </>
+      );
+    }
+  }
+
   if (waifusLoading) {
     left = (
-      <div
-        style={{
-          width: "232px",
-          height: "0",
-          marginRight: "25px",
-        }}
-      ></div>
+      <LeftSideNav>
+        <LeftSideNavLoading>
+          <LeftSideNavLoadingIcon src={LoadingNav} alt="loading-nav" />
+          <LeftSideNavLoadingDiv>Đang tải</LeftSideNavLoadingDiv>
+        </LeftSideNavLoading>
+      </LeftSideNav>
     );
     body = (
       <LoadingWrap>
@@ -508,6 +920,10 @@ const UserProfile = () => {
         <LeftNavWrap to={`/waifudb`}>
           <LeftImg src={LeftImage} alt="roll-waifu" />
           <LeftItem>Roll Waifu</LeftItem>
+        </LeftNavWrap>
+        <LeftNavWrap to="/postlist">
+          <Posting />
+          <LeftItem>Trang chủ</LeftItem>
         </LeftNavWrap>
         <LeftNavWrap to="/waifudb">
           <Database />
@@ -658,7 +1074,9 @@ const UserProfile = () => {
                                 className="src-image"
                               />
                               <p className="text">{waifu.name}</p>
-                              <p className="rank-most-owned">#{searchIndex + 1}</p>
+                              <p className="rank-most-owned">
+                                #{searchIndex + 1}
+                              </p>
                               <p className="rank-most-owned-content">
                                 Most owned Waifu
                               </p>
@@ -719,6 +1137,10 @@ const UserProfile = () => {
             )}
           </LeftItem>
         </LeftNavWrap>
+        <LeftNavWrap to="/postlist">
+          <Posting />
+          <LeftItem>Trang chủ</LeftItem>
+        </LeftNavWrap>
         <LeftNavWrap to="/waifudb">
           <Database />
           <LeftItem>Waifu Database</LeftItem>
@@ -746,7 +1168,7 @@ const UserProfile = () => {
       </ToTopButton>
       <Nav>
         <NavbarContainer>
-          <NavLogo to="/">
+          <NavLogo to="/postlist">
             <Img src={WebLogo} alt="weblogo" />
           </NavLogo>
           <SearchBarContainer>
@@ -764,11 +1186,37 @@ const UserProfile = () => {
               }}
             />
           </SearchBarContainer>
-          <User onClick={handleOpen}>
-            <UserAva src={userAva} alt="user-ava" />
-            <UserName>{user.name}</UserName>
-            <IoIosArrowDown />
-          </User>
+          <NavRightPart>
+            <PostIconNavContainer>
+              <PostIconNavWrap onClick={() => setIsDialogOpen(!isDialogOpen)}>
+                <PostIconNav />
+              </PostIconNavWrap>
+              <NavPostDialog isTurnOn={isDialogOpen}>
+                <div>
+                  <NavPostNew>
+                    <NavPostNewContent>
+                      <NavPostNewItem>
+                        <DialogPostButton
+                          onClick={() => navigate("/createpost")}
+                        >
+                          <NewPostIconWrap>
+                            <NewPostIcon />
+                          </NewPostIconWrap>
+                          <DialogSpan>Đăng bài viết</DialogSpan>
+                          <PostNewArrow />
+                        </DialogPostButton>
+                      </NavPostNewItem>
+                    </NavPostNewContent>
+                  </NavPostNew>
+                </div>
+              </NavPostDialog>
+            </PostIconNavContainer>
+            <User onClick={handleOpen}>
+              <UserAva src={userAva} alt="user-ava" />
+              <UserName>{user.name}</UserName>
+              <IoIosArrowDown />
+            </User>
+          </NavRightPart>
           {open && (
             <div className="dropdown">
               <div className="my-info">Thông tin của tôi</div>
@@ -785,9 +1233,18 @@ const UserProfile = () => {
           )}
         </NavbarContainer>
       </Nav>
-      <Container dark={avaModalVisible || bgModalVisible || modalOpen || openTitle}>
+      {left}
+      <Container
+        dark={avaModalVisible || bgModalVisible || modalOpen || openTitle}
+      >
         <StickySection>
-          {left}
+          <div
+            style={{
+              width: "232px",
+              height: "0",
+              marginRight: "25px",
+            }}
+          ></div>
           <AvaBgSection bgImage={bgImage}>
             <EditIconWrap>
               <EditIcon onClick={showBgModal} src={EditBtn} alt="edit-btn" />
@@ -800,7 +1257,11 @@ const UserProfile = () => {
               <Name>
                 <ProfileName>{user.name}</ProfileName>
                 {user.title.map((item) => (
-                  <span key={item.titleName} onClick={handleOpenTitle} className={item.className}>
+                  <span
+                    key={item.titleName}
+                    onClick={handleOpenTitle}
+                    className={item.className}
+                  >
                     {item.titleName}
                   </span>
                 ))}
@@ -828,33 +1289,31 @@ const UserProfile = () => {
               </Counter>
             </UserInfo>
           </AvaBgSection>
-          <Contact>
-            <ContactHeader>
-              <ContactTitle>Liên lạc với chúng tôi</ContactTitle>
-            </ContactHeader>
-
-            <MailWrap>
-              <MailTitle>Liên hệ</MailTitle>
-            </MailWrap>
-            <MailCard>
-              <EmailAdd>abc@gmail.com</EmailAdd>
-              <EmailOwner>Ramu</EmailOwner>
-            </MailCard>
-            <MailCard>
-              <EmailAdd>def@gmail.com</EmailAdd>
-              <EmailOwner>Kiene</EmailOwner>
-            </MailCard>
-            <MailCardLast>
-              <EmailAdd>xyz@gmail.com</EmailAdd>
-              <EmailOwner>Jamnes</EmailOwner>
-            </MailCardLast>
-
-            <ContactFooter>
-              <PaiFace src={Paimoe} alt="pai-logo" />
-              <CopyRight>All Rights Reserved.</CopyRight>
-            </ContactFooter>
-          </Contact>
+          <div
+            style={{
+              width: "272px",
+              height: "0",
+            }}
+          ></div>
         </StickySection>
+        <Contact>
+          <ContactHeader>
+            <ContactTitle>Liên lạc với chúng tôi</ContactTitle>
+          </ContactHeader>
+
+          <MailWrap>
+            <MailTitle>Liên hệ</MailTitle>
+          </MailWrap>
+          <MailCard>
+            <EmailAdd>abc@gmail.com</EmailAdd>
+            <EmailOwner>Ramu</EmailOwner>
+          </MailCard>
+
+          <ContactFooter>
+            <PaiFace src={Paimoe} alt="pai-logo" />
+            <CopyRight>All Rights Reserved.</CopyRight>
+          </ContactFooter>
+        </Contact>
         <List>
           <div
             style={{
@@ -889,6 +1348,27 @@ const UserProfile = () => {
             }}
           ></div>
         </List>
+
+        <List>
+          <div
+            style={{
+              width: "232px",
+              height: "0",
+              marginRight: "25px",
+            }}
+          ></div>
+          <PostWrap>
+            <PostEntryTitle>Bài đăng của bạn</PostEntryTitle>
+            <PostEntryInfo>Nơi bạn có thể xem những bài đã đăng</PostEntryInfo>
+          </PostWrap>
+          <div
+            style={{
+              width: "272px",
+              height: "0",
+            }}
+          ></div>
+        </List>
+        {postPart}
       </Container>
 
       <div id="snackbar">
@@ -969,7 +1449,7 @@ const UserProfile = () => {
           <OkBtn onClick={handleOkBg}>Đổi</OkBtn>
         </ModalFooter>
       </Modal>
-      <Footer />
+      {/* <Footer /> */}
 
       <AddModal open={modalOpen}>
         <ModalHeader>
@@ -1023,14 +1503,18 @@ const UserProfile = () => {
             </TableRow>
             <TableRow>
               <TableData style={{ width: "40%" }}>Starter</TableData>
-              <TableData style={{ width: "30%" }}>Số roll đạt 100 lần</TableData>
+              <TableData style={{ width: "30%" }}>
+                Số roll đạt 100 lần
+              </TableData>
               <TableData style={{ width: "30%" }}>
                 <span className="normal-title">Starter &#10024;</span>
               </TableData>
             </TableRow>
             <TableRow>
               <TableData style={{ width: "40%" }}>God of roll</TableData>
-              <TableData style={{ width: "30%" }}>Số roll đạt 1000 lần</TableData>
+              <TableData style={{ width: "30%" }}>
+                Số roll đạt 1000 lần
+              </TableData>
               <TableData style={{ width: "30%" }}>
                 <span className="elite-title">God of roll &#127922;</span>
               </TableData>
@@ -1038,6 +1522,26 @@ const UserProfile = () => {
           </tbody>
         </TableDisplay>
       </TitleModal>
+
+      {/* <ImageContainer isAppear={isPreviewed}>
+        <ImageBg></ImageBg>
+        <PreviewWrap>
+          <PreviewContainer>
+            <PreviewItem>
+              <PreviewZoomWrap>
+                <PreviewImgHolder></PreviewImgHolder>
+                <ImageShow src={InazumaBg} alt="post-image-zoom" />
+              </PreviewZoomWrap>
+            </PreviewItem>
+          </PreviewContainer>
+          <PreviewUi>
+            <PreviewTopBar>
+              <PreviewCounter>1/1</PreviewCounter>
+              <CloseButton />
+            </PreviewTopBar>
+          </PreviewUi>
+        </PreviewWrap>
+      </ImageContainer> */}
     </>
   );
 };

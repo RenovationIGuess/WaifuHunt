@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const Loading = styled.img`
-  width: 500px;
+  width: 364px;
 `
 
 export const LoadingContainer = styled.div`

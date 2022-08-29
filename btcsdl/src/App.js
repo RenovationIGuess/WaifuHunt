@@ -1,4 +1,4 @@
-import './App.css';
+import './App.scss';
 import React from 'react'
 import { 
   BrowserRouter as Router, 
@@ -9,33 +9,47 @@ import Home from './pages'
 import SignInPage from './pages/signin'
 import AboutUsPage from './pages/aboutus'
 import AboutProject from "./pages/aboutpj"
-/* import Profile from './pages/profile'; */
-/* import WaifuListPage from './pages/waifulist'; */
+
 import AuthContextProvider from './contexts/AuthContext';
+import WaifuContextProvider from './contexts/WaifuContext';
+import PostContextProvider from './contexts/PostContext';
+import UserContextProvider from './contexts/UsersContext';
+
 import ErrorNotFound from './pages/error404';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import ProtectedDb from './components/routing/ProtectedDb';
 import ProtectedWaifu from './components/routing/ProtectedWaifu';
-import WaifuContextProvider from './contexts/WaifuContext';
 import ProtectedRoll from './components/routing/ProtectedGetWaifu';
+import ProtectedCreatePost from './components/routing/ProtectedCreatePost';
+import ProtectedPostDetail from './components/routing/ProtectedPostDetail';
+import ProtectedPostList from './components/routing/ProtectedPostList';
+import ProtectedOtherProfile from './components/routing/ProtectedOtherUser';
 
 function App() {
   return (
     <AuthContextProvider>
       <WaifuContextProvider>
-        <Router>
-          <Routes>    
-            <Route path="/waifudb/:id/get" element={<ProtectedRoll />} />
-            <Route path="/waifudb/:id" element={<ProtectedWaifu />} />
-            <Route path="/user/:id" element={<ProtectedRoute />} />
-            <Route path="/waifudb" element={<ProtectedDb />} exact />
-            <Route path="/about-pj" element={<AboutProject />} exact />
-            <Route path="/about-us" element={<AboutUsPage />} exact />
-            <Route path="/" element={<Home />} exact />
-            <Route path="/signin" element={<SignInPage />} exact />
-            <Route path="*" element={<ErrorNotFound />} />
-          </Routes>
-        </Router>
+        <PostContextProvider>
+          <UserContextProvider>
+            <Router>
+              <Routes>    
+                <Route path="/waifudb/:id/get" element={<ProtectedRoll />} />
+                <Route path="/waifudb/:id" element={<ProtectedWaifu />} />
+                <Route path="/otheruser/:id" element={<ProtectedOtherProfile />} />
+                <Route path="/user/:id" element={<ProtectedRoute />} />
+                <Route path="/posts/:id" element={<ProtectedPostDetail />} />
+                <Route path="/waifudb" element={<ProtectedDb />} exact />
+                <Route path="/postlist" element={<ProtectedPostList />} exact />
+                <Route path="/about-pj" element={<AboutProject />} exact />
+                <Route path="/about-us" element={<AboutUsPage />} exact />
+                <Route path="/createpost" element={<ProtectedCreatePost />} exact />
+                <Route path="/" element={<Home />} exact />
+                <Route path="/signin" element={<SignInPage />} exact />
+                <Route path="*" element={<ErrorNotFound />} />
+              </Routes>
+          </Router>
+          </UserContextProvider>
+        </PostContextProvider>
       </WaifuContextProvider>
     </AuthContextProvider>
   );

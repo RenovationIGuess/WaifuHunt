@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useContext,
-} from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Nav,
@@ -24,6 +20,22 @@ import {
   CancelBtn,
   OkBtn,
   Database,
+  Posting,
+  NavRightPart,
+  PostIconNavWrap,
+  PostIconNav,
+  PostIconNavContainer,
+  NavPostDialog,
+  NavPostNew,
+  NavPostNewContent,
+  NavPostNewItem,
+  DialogPostButton,
+  DialogSpan,
+  NewPostIconWrap,
+  NewPostIcon,
+  LeftSideNavLoading,
+  LeftSideNavLoadingIcon,
+  LeftSideNavLoadingDiv,
 } from "../profile/pfelement";
 import {
   LeftSection,
@@ -60,6 +72,7 @@ import { Loading, LoadingWrap } from "../Loading";
 import { Toast, ToastMsg } from "../toastMsg";
 
 import Chilling from "../../videos/chillin.gif";
+import LoadingNav from "../../videos/loadingNav.gif";
 import HutaoAva from "../../images/hutaostick.png";
 import RaidenAva from "../../images/raidenfbi.png";
 import DoggoAva from "../../images/realdoggo.png";
@@ -74,7 +87,7 @@ import { MdKeyboardArrowRight, MdErrorOutline } from "react-icons/md";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { RiHeartsLine, RiHeartsFill } from "react-icons/ri";
 
-import Footer from "../footer";
+/* import Footer from "../footer"; */
 
 import { Link as LinkRouter } from "react-router-dom";
 
@@ -88,7 +101,8 @@ import "../waifudb/waifulist.scss";
 import "./waifuinfo.scss";
 import { TrashButton } from "../getwaifu/getwaifuele";
 
-import Timer from '../timer';
+import Timer from "../timer";
+import { PostNewArrow } from "../postList/postListEle";
 
 const WaifuInfo = () => {
   const {
@@ -111,7 +125,7 @@ const WaifuInfo = () => {
   let body;
   let left;
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [userAva, setUserAva] = useState(RaidenAva);
@@ -132,6 +146,9 @@ const WaifuInfo = () => {
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("");
 
+  // Controlling NavPostDialog
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   // Used for searching
   const [searchValue, setSearchValue] = useState("");
 
@@ -144,19 +161,19 @@ const WaifuInfo = () => {
   });
   const [deadline, setDeadline] = useState(() => {
     const dead = window.localStorage.getItem(TIME_STORAGE);
-    if (dead){
+    if (dead) {
       return parseInt(dead);
     } else return null;
   });
 
   const initTimer = 3600000; //in miliseconds, 3600000 = 1 hour
 
-  //reset remaining time to initTimer 
-  const startTimer = () => { 
+  //reset remaining time to initTimer
+  const startTimer = () => {
     const deadTime = Date.now() + initTimer;
     window.localStorage.setItem(TIME_STORAGE, deadTime);
-    setDeadline(deadTime); 
-  }
+    setDeadline(deadTime);
+  };
 
   useEffect(() => {
     window.localStorage.setItem(ROLL_STORAGE, rollTimes);
@@ -164,11 +181,11 @@ const WaifuInfo = () => {
 
   const handleDead = () => {
     setRollTimes(10);
-  }
+  };
 
   const startReset = async () => {
     try {
-      const response = await increaseRoll()
+      const response = await increaseRoll();
       if (response.success) {
         if (rollTimes > 1) {
           setRollTimes(rollTimes - 1);
@@ -178,15 +195,15 @@ const WaifuInfo = () => {
         }
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   };
 
   useEffect(() => {
     async function fetchData() {
-      await getWaifus()
+      await getWaifus();
     }
-    fetchData()
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -196,31 +213,29 @@ const WaifuInfo = () => {
           (item) => item.waifuid === parseInt(waifuId.id)
         );
         if (user.waifulist.length !== 0) {
-          console.log(123)
           const searchIndex = user.waifulist.findIndex(
             (item) => item === waifus[waifuToFind]._id
           );
           if (searchIndex !== -1) {
             setIsOwned(true);
           } else {
-            setIsOwned(false)
+            setIsOwned(false);
           }
         }
         if (user.wishlist.length !== 0) {
-          console.log(123)
           const wishIndex = user.wishlist.findIndex(
             (item) => item === waifus[waifuToFind]._id
           );
           if (wishIndex !== -1) {
             setIsWishlist(true);
           } else {
-            setIsWishlist(false)
+            setIsWishlist(false);
           }
         }
       }
-      await getCertainWaifus(parseInt(waifuId.id))
+      await getCertainWaifus(parseInt(waifuId.id));
     }
-    fetchData()
+    fetchData();
   }, [waifuId.id]);
 
   /* useEffect(() => {
@@ -255,7 +270,9 @@ const WaifuInfo = () => {
 
   const handleSearch = () => {
     if (searchValue !== "") {
-      const searchIndex = waifus.findIndex((item) => item.name.includes(searchValue));
+      const searchIndex = waifus.findIndex((item) =>
+        item.name.includes(searchValue)
+      );
       if (searchIndex !== -1) {
         navigate(`/waifudb/${waifus[searchIndex].waifuid}`);
       } else {
@@ -432,32 +449,24 @@ const WaifuInfo = () => {
     reader.readAsDataURL(e.target.files[0]);
   };
 
-  if (!waifusLoading) {
-    if (waifus.length !== 0) {
-      /* const waifuToFind = waifus.findIndex(
-        (item) => item.waifuid === parseInt(waifuId.id)
-      );
-      if (user.waifulist.length !== 0) {
-        const searchIndex = user.waifulist.findIndex(
-          (item) => item === waifus[waifuToFind]._id
-        );
-        if (searchIndex !== -1) {
-          isOwned.current = true;
-        }
-      }
-      if (user.wishlist.length !== 0) {
-        const wishIndex = user.wishlist.findIndex(
-          (item) => item === waifus[waifuToFind]._id
-        );
-        if (wishIndex !== -1) {
-          isWishlist.current = true;
-        }
-      } */
-
-      waifus.sort((a, b) => {
-        return (b.user.length - a.user.length)
-      })
+  if (waifusLoading) { 
+    left = (
+      <LeftSection>
+        <LeftSideNavLoading>
+          <LeftSideNavLoadingIcon src={LoadingNav} alt="loading-nav" />
+          <LeftSideNavLoadingDiv>Đang tải</LeftSideNavLoadingDiv>
+        </LeftSideNavLoading>
+      </LeftSection>
+    );
+  } else {
+    const waifuParamId = parseInt(waifuId.id);
+    const waifuParamIndex = waifus.findIndex((w) => w.waifuid === waifuParamId);
+    if (waifuParamIndex === -1) {
+      navigate("/404");
     }
+    waifus.sort((a, b) => {
+      return b.user.length - a.user.length;
+    });
 
     left = (
       <LeftSection>
@@ -470,44 +479,25 @@ const WaifuInfo = () => {
         >
           <LeftImg src={LeftImage} alt="roll-waifu" />
           <LeftItem>
-            {rollTimes === 0 ?
-            <Timer 
-              countdownTimestampMs={deadline} 
-              handleDead={handleDead}
-              rollTimes={rollTimes}
-            /> : `Roll Waifu (${rollTimes})`
-            }
+            {rollTimes === 0 ? (
+              <Timer
+                countdownTimestampMs={deadline}
+                handleDead={handleDead}
+                rollTimes={rollTimes}
+              />
+            ) : (
+              `Roll Waifu (${rollTimes})`
+            )}
           </LeftItem>
+        </LeftNavWrap>
+        <LeftNavWrap to="/postlist">
+          <Posting />
+          <LeftItem>Trang chủ</LeftItem>
         </LeftNavWrap>
         <LeftNavWrap to="/waifudb" style={{ marginBottom: "4px" }}>
           <Database />
           <LeftItem>Waifu Database</LeftItem>
         </LeftNavWrap>
-        {/* <Category>
-          <CateImg>
-            <TbListSearch />
-          </CateImg>
-          <CategoryTitle>Categories</CategoryTitle>
-        </Category>
-        <CategoryItem>
-          <div>Genshin Impact</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Genshin Impact").length})
-          </div>
-        </CategoryItem>
-        <CategoryItem>
-          <div>Love is war</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Love is war").length})
-          </div>
-        </CategoryItem>
-        <CategoryItem>
-          <div>Honkai Impact 3</div>
-          <div>
-            ({waifus.filter((item) => item.source === "Honkai Impact 3").length}
-            )
-          </div>
-        </CategoryItem> */}
         <ContactFooter>
           <PaiFace src={Paimoe} alt="pai-logo" />
           <CopyRight>All Rights Reserved.</CopyRight>
@@ -583,8 +573,8 @@ const WaifuInfo = () => {
 
           {!editActive && (
             <GridInfoItem>
-              <GridInfoTitle>Rank (most-owned): </GridInfoTitle>
-              #{waifus.findIndex((item) => item.waifuid === waifu.waifuid) + 1}
+              <GridInfoTitle>Rank (most-owned): </GridInfoTitle>#
+              {waifus.findIndex((item) => item.waifuid === waifu.waifuid) + 1}
             </GridInfoItem>
           )}
 
@@ -655,7 +645,7 @@ const WaifuInfo = () => {
     <>
       <Nav>
         <NavbarContainer>
-          <NavLogo to="/">
+          <NavLogo to="/postlist">
             <Img src={WebLogo} alt="weblogo" />
           </NavLogo>
           <SearchBarContainer>
@@ -668,23 +658,46 @@ const WaifuInfo = () => {
               autoComplete="off"
               onKeyPress={(e) => {
                 if (e.key === "Enter") {
-                  handleSearch()
+                  handleSearch();
                 }
               }}
             />
           </SearchBarContainer>
-          <User onClick={handleOpen}>
-            <UserAva src={userAva} alt="user-ava" />
-            <UserName>{user.name}</UserName>
-            <IoIosArrowDown />
-          </User>
+          <NavRightPart>
+            <PostIconNavContainer>
+              <PostIconNavWrap onClick={() => setIsDialogOpen(!isDialogOpen)}>
+                <PostIconNav />
+              </PostIconNavWrap>
+              <NavPostDialog isTurnOn={isDialogOpen}>
+                <div>
+                  <NavPostNew>
+                    <NavPostNewContent>
+                      <NavPostNewItem>
+                        <DialogPostButton
+                          onClick={() => navigate("/createpost")}
+                        >
+                          <NewPostIconWrap>
+                            <NewPostIcon />
+                          </NewPostIconWrap>
+                          <DialogSpan>Đăng bài viết</DialogSpan>
+                          <PostNewArrow />
+                        </DialogPostButton>
+                      </NavPostNewItem>
+                    </NavPostNewContent>
+                  </NavPostNew>
+                </div>
+              </NavPostDialog>
+            </PostIconNavContainer>
+            <User onClick={handleOpen}>
+              <UserAva src={userAva} alt="user-ava" />
+              <UserName>{user.name}</UserName>
+              <IoIosArrowDown />
+            </User>
+          </NavRightPart>
           {open && (
             <div className="dropdown">
               <ToInfoPage>Thông tin của tôi</ToInfoPage>
-              <LinkRouter
-                to={`/user/${user.userid}`}
-                className="menu-item"
-              >
+              <LinkRouter to={`/user/${user.userid}`} className="menu-item">
                 <span className="icon-left">
                   <GrUserSettings />
                 </span>
@@ -772,7 +785,7 @@ const WaifuInfo = () => {
           {body}
         </WaifuInfoContainer>
       </MainContainer>
-      <Footer />
+      {/* <Footer /> */}
 
       <div id="snackbar">
         <Toast>

@@ -8,7 +8,7 @@ const UserSchema = new Schema(
     userid: { type: Number, },
     name: { 
       type: String, 
-      require: true,
+      required: true,
       default: 'Waifu Hunter :D', 
     },
     sign: { 
@@ -25,13 +25,13 @@ const UserSchema = new Schema(
     },
     username: {
         type: String, 
-        require: true,
+        required: true,
         unique: true,
         trim: true, 
     },
     password: { 
         type: String, 
-        require: true,
+        required: true,
         unique: true,
         trim: true,
         /* minlength: 8, */ 
@@ -49,6 +49,7 @@ const UserSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'waifus', 
     }],
+    follow: { type: [Number], default: [] },
     role: {
       type: String,
       default: 'user',

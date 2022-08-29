@@ -1,5 +1,6 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import SignInButton from "../../images/loginpage/button.png";
+import CoolButton from "../../images/loginpage/buttonlogo.png"
 import LogoImg from "../../images/loginpage/logoweb.png";
 import PaiImg from "../../images/loginpage/paim.png";
 import { FaFacebook, FaDiscord, FaGithub } from "react-icons/fa";
@@ -12,6 +13,11 @@ import { Loading, LoadingWrap } from '../Loading'
 import Chilling from '../../videos/chillin.gif'
 import "./signin.scss";
 import { Toast, ToastMsg } from '../toastMsg'
+import { ImageButtonLogin, LoginAll, SwitchBtn } from "./signinelements";
+
+import BgWarm from "../../images/loginpage/Bg.png"
+import BgCold1 from "../../images/loginpage/ColdChurl.png"
+import BgCold2 from "../../images/loginpage/ColdWinter.png"
 
 function SignIn() {
   // Context 
@@ -40,6 +46,21 @@ function SignIn() {
   const [message, setMessage] = useState('')
   const [desc, setDesc] = useState('')
   const [type, setType] = useState('')
+
+  const [bgArray, setBgArray] = useState(Math.floor(Math.random() * 3));
+  
+  const [bgState, setBgState] = useState(() => {
+    switch(bgArray) {
+      case 0:
+        return BgWarm;
+      case 1:
+        return BgCold1;
+      case 2:
+        return BgCold2;
+      default:
+        return BgWarm;
+    }
+  })
 
   const handleSubmitLog = async () => {
     try {
@@ -208,9 +229,10 @@ function SignIn() {
                 />
               )}
             </div>
-            <img
-              src={SignInButton}
-              className="login-btn"
+            <ImageButtonLogin
+              src={bgArray === 0 ? SignInButton : CoolButton}
+              bgType={bgArray}
+              /* className="login-btn" */
               alt="button"
               onClick={handleSubmitReg}
             />
@@ -266,9 +288,10 @@ function SignIn() {
               )}
             </div>
             <a href="https://www.facebook.com/profile.php?id=100017352246348">Quên mật khẩu?</a>
-            <img
-              src={SignInButton}
-              className="login-btn"
+            <ImageButtonLogin
+              src={bgArray === 0 ? SignInButton : CoolButton}
+              bgType={bgArray}
+              /* className="login-btn" */
               alt="button"
               onClick={handleSubmitLog}
             />
@@ -295,7 +318,7 @@ function SignIn() {
   }
 
   return (
-    <div className="App">
+    <LoginAll img={bgState}>
       <div id="snackbar">
         <Toast>
           {type === 'success' ? 
@@ -314,17 +337,18 @@ function SignIn() {
           <p className="not-have-acc">
             {isSignInClick ? "Đã có tài khoản?" : "Chưa có tài khoản?"}
           </p>
-          <button
+          <SwitchBtn
+            colorState={bgArray}
             onClick={handleClick}
-            className="sign-in-btn"
+            /* className="sign-in-btn" */
             id="toggle-change"
           >
             {isSignInClick ? "Đăng nhập" : "Đăng ký"}
-          </button>
+          </SwitchBtn>
         </div>
       </div>
       {body}
-    </div>
+   </LoginAll>
   );
 }
 

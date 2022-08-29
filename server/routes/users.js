@@ -5,6 +5,21 @@ const Waifu = require("../app/models/Waifu");
 const verifyToken = require("../app/middleware/auth");
 const { verify } = require("jsonwebtoken");
 
+// GET all users
+router.get("/allusers", async (req, res) => {
+  try { 
+    const users = await User.find();
+    res.status(200).json({
+      success: true,
+      message: "Lấy tất cả thông tin của các user thành công",
+      users,
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err });
+  }
+})
+
+// PATCH change user avatar
 router.patch("/ava", verifyToken, async (req, res) => {
   const { newAva } = req.body;
 
@@ -19,7 +34,7 @@ router.patch("/ava", verifyToken, async (req, res) => {
   }
 });
 
-// Get title
+// PATCH change user title
 router.patch("/title", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
@@ -79,6 +94,7 @@ router.patch("/title", verifyToken, async (req, res) => {
   }
 });
 
+// PATCH change user background
 router.patch("/background", verifyToken, async (req, res) => {
   const { newBg } = req.body;
 
@@ -93,6 +109,7 @@ router.patch("/background", verifyToken, async (req, res) => {
   }
 });
 
+// PATCH change user info: name and sign
 router.patch("/info", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
@@ -142,6 +159,7 @@ router.patch("/getwaifu", verifyToken, async (req, res) => {
   }
 });
 
+// PATCH add wishlist
 router.patch("/wishwaifu", verifyToken, async (req, res) => {
   try {
     const waifuToWish = await Waifu.findOne({ waifuid: req.body.waifuid });
@@ -155,6 +173,7 @@ router.patch("/wishwaifu", verifyToken, async (req, res) => {
   }
 });
 
+// PATCH remove from wishlist
 router.patch("/unwish", verifyToken, async (req, res) => {
   try {
     const waifuToWish = await Waifu.findOne({ waifuid: req.body.waifuid });
@@ -170,6 +189,7 @@ router.patch("/unwish", verifyToken, async (req, res) => {
   }
 });
 
+// PATCH remove from waifulist
 router.patch("/delwaifu", verifyToken, async (req, res) => {
   try {
     const waifuToWish = await Waifu.findOne({
@@ -190,5 +210,31 @@ router.patch("/delwaifu", verifyToken, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// PATCH: follow a user
+router.patch("/follow/:id", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    user.follow.push(req.body.followid);
+
+    const afterUpdated = await user.save();
+    res.json({ success: true, message: "Follow thành công!", afterUpdated })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+})
+
+// PATCH: unfollow a user
+router.patch("/unfollow/:id", verifyToken, async (req,res) => {
+  try {
+    const user = await User.findById(req.userId);
+    user.follow = user.follow.filter((f) => f !== req.body.followid);
+
+    const afterUpdated = await user.save();
+    res.json({ success: true, message: "Unfollow thành công!", afterUpdated })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+})
 
 module.exports = router;
