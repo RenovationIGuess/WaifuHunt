@@ -1,7 +1,7 @@
 const express = require("express");
 const verifyToken = require("../app/middleware/auth");
 const Waifu = require("../app/models/Waifu");
-const User = require('../app/models/User')
+const User = require("../app/models/User");
 const router = express.Router();
 
 // Getting all waifus in db
@@ -42,13 +42,13 @@ router.get("/:id", getWaifu, (req, res) => {
     message: "Lấy dữ liệu thành công!",
     foundWaifu,
   }); */
-  res.json(res.waifu)
+  res.json(res.waifu);
 });
 
 // [POST]
 // Create 1 waifu - only admin can create
 router.post("/create", async (req, res) => {
-	const { name, source, sourceimg, image } = req.body
+  const { name, source, sourceimg, image } = req.body;
   if (!name || !image || !source || !sourceimg) {
     return res.status(400).json({
       success: false,
@@ -60,7 +60,7 @@ router.post("/create", async (req, res) => {
     name,
     image,
     source,
-		sourceimg,
+    sourceimg,
   });
 
   try {
@@ -94,10 +94,10 @@ router.patch("/edit/:id", getWaifu, async (req, res) => {
     res.waifu.sourcelink = req.body.sourcelink;
   }
   if (req.body.imagesrc) {
-    res.waifu.imagesrc = req.body.imagesrc
+    res.waifu.imagesrc = req.body.imagesrc;
   }
   if (req.body.desc) {
-    res.waifu.desc = req.body.desc
+    res.waifu.desc = req.body.desc;
   }
 
   try {
@@ -117,16 +117,96 @@ router.patch("/edit/:id", getWaifu, async (req, res) => {
 router.delete("/delete/:id", verifyToken, async (req, res) => {
   try {
     const waifuToWish = await Waifu.findOne({ waifuid: req.body.waifuid });
-    const user = await User.findById(req.userId).populate("waifulist");
+    let user = await User.findById(req.userId)/* .populate("waifulist"); */
+    /* user = {
+      ...user,
+      waifulist: user.waifulist.filter(
+        (item) => item.valueOf() !== waifuToWish._id.valueOf()
+      ),
+      wishlist: user.wishlist.filter(
+        (item) => item.valueOf() !== waifuToWish._id.valueOf()
+      ),
+    } */
     user.waifulist = user.waifulist.filter(
-      (item) => item.waifuid !== waifuToWish.waifuid
+      (item) => item.equals(waifuToWish._id) === false
     );
     user.wishlist = user.wishlist.filter(
-      (item) => item.waifuid !== waifuToWish.waifuid
+      (item) => item.equals(waifuToWish._id) === false
     );
     await waifuToWish.remove();
-    await user.save()
+    await user.save();
     res.json({ success: true, message: "Delete successful!" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// PATCH: update when user rate a character
+router.patch("/rating/:id", verifyToken, async (req, res) => {
+  try {
+    const waifuToRate = await Waifu.findOne({ waifuid: req.body.waifuid });
+    let rating = { ...waifuToRate.rating };
+    const user = await User.findById(req.userId);
+    if (req.body.ratingNum === 5) {
+      /* waifuToRate.rating.five.push(user.userid); */
+      rating.five.push(user.userid);
+      rating = {
+        ...rating,
+        four: rating.four.filter((r) => r !== user.userid),
+        three: rating.three.filter((r) => r !== user.userid),
+        two: rating.two.filter((r) => r !== user.userid),
+        one: rating.one.filter((r) => r !== user.userid),
+      };
+    } else if (req.body.ratingNum === 4) {
+      /* waifuToRate.rating.four.push(user.userid); */
+      rating.four.push(user.userid);
+      rating = {
+        ...rating,
+        five: rating.five.filter((r) => r !== user.userid),
+        three: rating.three.filter((r) => r !== user.userid),
+        two: rating.two.filter((r) => r !== user.userid),
+        one: rating.one.filter((r) => r !== user.userid),
+      };
+    } else if (req.body.ratingNum === 3) {
+      /* waifuToRate.rating.three.push(user.userid); */
+      rating.three.push(user.userid);
+      rating = {
+        ...rating,
+        five: rating.five.filter((r) => r !== user.userid),
+        four: rating.four.filter((r) => r !== user.userid),
+
+        two: rating.two.filter((r) => r !== user.userid),
+        one: rating.one.filter((r) => r !== user.userid),
+      };
+    } else if (req.body.ratingNum === 2) {
+      /* waifuToRate.rating.two.push(user.userid); */
+      rating.two.push(user.userid);
+      rating = {
+        ...rating,
+        five: rating.five.filter((r) => r !== user.userid),
+        four: rating.four.filter((r) => r !== user.userid),
+        three: rating.three.filter((r) => r !== user.userid),
+        one: rating.one.filter((r) => r !== user.userid),
+      };
+    } else {
+      /* waifuToRate.rating.one.push(user.userid); */
+      rating.one.push(user.userid);
+      rating = {
+        ...rating,
+        five: rating.five.filter((r) => r !== user.userid),
+        four: rating.four.filter((r) => r !== user.userid),
+        three: rating.three.filter((r) => r !== user.userid),
+        two: rating.two.filter((r) => r !== user.userid),
+      };
+    }
+    waifuToRate.rating = { ...rating };
+    const hasRated = waifuToRate.ratedUser.includes(user.userid);
+    if (!hasRated) waifuToRate.ratedUser.push(user.userid);
+
+    const updatedWaifu = await waifuToRate.save();
+    res
+      .status(200)
+      .json({ success: true, message: "Rating thành công!", updatedWaifu });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -7,9 +7,10 @@ import {
   CREATE_POST,
   LIKE_POST,
   UNLIKE_POST,
-  COMMENT_POST,
+  /* COMMENT_POST, */
   DELETE_POST,
   EDIT_POST,
+  /* DELETE_POST_CMT, */
   /* DELETE_POST, */
 } from "./constants";
 import axios from "axios";
@@ -98,7 +99,7 @@ const PostContextProvider = ({ children }) => {
   };
 
   // handle comment
-  const commentPost = async (postComment) => {
+  /* const commentPost = async (postComment) => {
     try {
       const response = await axios.patch(
         `${apiUrl}/post/comment/${postComment.postid}`,
@@ -112,14 +113,17 @@ const PostContextProvider = ({ children }) => {
     } catch (err) {
       console.log(err);
     }
-  };
+  }; */
 
   const editPost = async (editedPost) => {
     try {
-      const response = await axios.patch(`${apiUrl}/post/edit/${editedPost.postid}`, editedPost)
+      const response = await axios.patch(
+        `${apiUrl}/post/edit/${editedPost.postid}`,
+        editedPost
+      );
       if (response.data.success) {
-        dispatch({ type: EDIT_POST, payload: response.data.updatedPost })
-        return response.data
+        dispatch({ type: EDIT_POST, payload: response.data.updatedPost });
+        return response.data;
       }
     } catch (err) {
       if (err.response.data) return err.response.data;
@@ -134,10 +138,9 @@ const PostContextProvider = ({ children }) => {
 
   const deletePost = async (postId) => {
     try {
-      const response = await axios.delete(
-        `${apiUrl}/post/delete/${postId}`,
-        { data: { postid: postId } }
-      );
+      const response = await axios.delete(`${apiUrl}/post/delete/${postId}`, {
+        data: { postid: postId },
+      });
       if (response.data.success) {
         dispatch({ type: DELETE_POST, payload: postId });
         return response.data;
@@ -147,6 +150,21 @@ const PostContextProvider = ({ children }) => {
     }
   };
 
+  /* const deletePostComment = async (postInfo) => {
+    try {
+      const response = await axios.patch(
+        `${apiUrl}/post/delete/cmt/${postInfo.postid}`,
+        postInfo,
+      );
+      if (response.data.success) {
+        dispatch({ type: DELETE_POST_CMT, payload: response.data.updatedPost });
+        return response.data;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }; */
+
   // Context data
   const postContextData = {
     postState,
@@ -154,9 +172,10 @@ const PostContextProvider = ({ children }) => {
     createPost,
     likePost,
     unlikePost,
-    commentPost,
+    /* commentPost, */
     editPost,
     deletePost,
+    /* deletePostComment, */
   };
 
   // Return provider

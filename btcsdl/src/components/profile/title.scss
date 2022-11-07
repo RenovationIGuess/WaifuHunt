@@ -39,13 +39,16 @@
 }
 
 .begin-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 8px;
   font-size: 14px;
   background: #4cc2ff;
   /* text-weight: bold; */
   color: #fff;
   padding: 1px 3px;
-  text-align: center;
+  /* text-align: center; */
   border-radius: 5px;
 
   &:hover {
@@ -54,13 +57,16 @@
 }
 
 .normal-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 8px;
   font-size: 14px;
   background: #f1496b;
   /* text-weight: bold; */
   color: #fff;
   padding: 1px 3px;
-  text-align: center;
+  /* text-align: center; */
   border-radius: 5px;
 
   &:hover {
@@ -69,11 +75,14 @@
 }
 
 .king-harem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 	margin-right: 8px;
   font-size: 14px;
   color: #000;
   padding: 2px 4px;
-  text-align: center;
+  /* text-align: center; */
   border-radius: 6px;
 
 	background: linear-gradient(

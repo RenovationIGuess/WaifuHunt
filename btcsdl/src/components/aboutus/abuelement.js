@@ -259,6 +259,7 @@ export const Monke = styled.div`
   font-size: 72px;
   font-weight: bold;
   margin-top: 48px;
+  text-shadow: 0px 10px 10px rgb(83 150 212 / 23%);
 
   background: linear-gradient(
     to top right,

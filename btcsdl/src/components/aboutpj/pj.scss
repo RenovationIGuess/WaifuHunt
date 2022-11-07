@@ -62,16 +62,20 @@
   border-radius: 2px;
   visibility: hidden;
   margin-top: 3px;
+  position: relative;
 
   &::after {
     content: "";
     display: block;
-    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
     height: 100%;
     background: #fff;
     border-radius: inherit;
     /* -webkit-transform: translateX(-100%); */
-    transform: translateX(-100%);
+    /* transform: translateX(-100%); */
     /* transition: 5s ease; */
   }
 }
@@ -82,8 +86,9 @@
 }
 
 .timeline.isactive::after {
-  transition: transform 5s linear, -webkit-transform 5s linear;
-  transform: translateX(0);
+  /* transition: transform 5s linear, -webkit-transform 5s linear;
+  transform: translateX(0); */
+  animation: bullet 5s linear forwards;
 }
 
 @media screen and (min-width: 600px) {
@@ -181,4 +186,14 @@ hr {
   height: 2px;
   background: white;
   width: 50%;
+}
+
+@keyframes bullet {
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
 }

@@ -34,6 +34,10 @@ const AboutPj = () => {
   const timeoutRef = useRef(null);
   const delay = 5000;
 
+  useEffect(() => {
+    document.title = "Về dự án"
+  }, [])
+
   const nextSlide = () => {
     setCurrentSlide(currentSlide === slideLength - 1 ? 0 : currentSlide + 1);
   };
@@ -47,6 +51,10 @@ const AboutPj = () => {
       clearTimeout(timeoutRef.current);
     }
   }
+
+  /* useLayoutEffect(() => {
+    setTimeout(() => setCurrentSlide(0), 300);
+  }, []); */
 
   useEffect(() => {
     resetTimeout();

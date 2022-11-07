@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Video from '../../videos/video.mp4'
 import {
   HeroContainer,
@@ -10,11 +10,27 @@ import {
   HeroBtnWrapper,
   ArrowForward,
   ArrowRight,
+  MouseScroll,
+  Line,
+  Mouse,
 } from './heroelements'
 import { Button } from '../buttonElement'
 
 const HeroSection = () => {
-  const [isHover, setHover] = useState(false)
+  const [isHover, setHover] = useState(false);
+  const [scrollNav, setScrollNav] = useState(false);
+  
+  const changeNav = () => {
+    if (window.scrollY >= 80) {
+      setScrollNav(true);
+    } else {
+      setScrollNav(false);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('scroll', changeNav);
+  }, [])
 
    const onHover = () => {
     setHover(!isHover)
@@ -44,6 +60,12 @@ const HeroSection = () => {
           </Button>
         </HeroBtnWrapper> 
       </HeroContent>
+      <MouseScroll scrollDown={scrollNav}>
+        <div>
+          <Mouse />
+        </div>
+        <Line></Line>
+      </MouseScroll>
     </HeroContainer>
   )
 }

@@ -1,7 +1,23 @@
 import { createContext, useReducer, useEffect } from "react";
 import axios from "axios";
 import { authReducer } from "../reducers/authReducer";
-import { apiUrl, LOCAL_STORAGE_TOKEN_NAME } from "./constants";
+import {
+  apiUrl,
+  LOCAL_STORAGE_TOKEN_NAME,
+  CHANGE_AVA,
+  CHANGE_BG,
+  CHANGE_INFO,
+  ROLL_N_GET,
+  ADD_WISHLIST,
+  REMOVE_WISHLIST,
+  DEL_WAIFULIST,
+  INC_ROLL,
+  FOLLOW_USER,
+  UNFOLLOW_USER,
+  GET_ALL_USERS,
+  CHANGE_ROLE,
+  DELETE_USER,
+} from "./constants";
 import setAuthToken from "../utils/setAuthToken";
 
 export const AuthContext = createContext();
@@ -11,6 +27,8 @@ const AuthContextProvider = ({ children }) => {
     authLoading: true,
     isAuthenticated: false,
     user: null,
+    usersLoading: true,
+    users: [],
   });
 
   // Authenticated User
@@ -101,12 +119,32 @@ const AuthContextProvider = ({ children }) => {
     });
   };
 
+  const loadAllUser = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/user/edit/allusers`);
+      if (response.data.success) {
+        dispatch({
+          type: GET_ALL_USERS,
+          payload: response.data.users,
+        });
+        return response.data;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => loadAllUser(), []);
+
   // const change avatar
   const changeAva = async (userAva) => {
     try {
       const response = await axios.patch(`${apiUrl}/user/edit/ava`, userAva);
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: CHANGE_AVA, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -120,7 +158,10 @@ const AuthContextProvider = ({ children }) => {
         userBg
       );
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: CHANGE_BG, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -130,7 +171,10 @@ const AuthContextProvider = ({ children }) => {
     try {
       const response = await axios.patch(`${apiUrl}/user/edit/info`, userInfo);
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: CHANGE_INFO, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -143,7 +187,10 @@ const AuthContextProvider = ({ children }) => {
         waifuId
       );
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: ROLL_N_GET, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -156,7 +203,10 @@ const AuthContextProvider = ({ children }) => {
         waifuId
       );
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: ADD_WISHLIST, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -167,7 +217,10 @@ const AuthContextProvider = ({ children }) => {
     try {
       const response = await axios.patch(`${apiUrl}/user/edit/unwish`, waifuId);
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: REMOVE_WISHLIST, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -180,7 +233,10 @@ const AuthContextProvider = ({ children }) => {
         waifuId
       );
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: DEL_WAIFULIST, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -190,7 +246,10 @@ const AuthContextProvider = ({ children }) => {
     try {
       const response = await axios.patch(`${apiUrl}/user/edit/incroll`);
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: INC_ROLL, payload: response.data.updatedUser });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -203,7 +262,10 @@ const AuthContextProvider = ({ children }) => {
         followId
       );
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: FOLLOW_USER, payload: response.data.afterUpdated });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -216,11 +278,46 @@ const AuthContextProvider = ({ children }) => {
         followId
       );
       await loadUser();
-      return response.data;
+      if (response.data.success) {
+        dispatch({ type: UNFOLLOW_USER, payload: response.data.afterUpdated });
+        return response.data;
+      }
     } catch (err) {
       console.log(err);
     }
   };
+
+  const changeUserRole = async (userId) => {
+    try {
+      const response = await axios.patch(
+        `${apiUrl}/user/edit/role/patch`,
+        userId
+      );
+      await loadUser();
+      if (response.data.success) {
+        dispatch({ type: CHANGE_ROLE, payload: response.data.afterUpdated });
+        return response.data;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const deleteUser = async (userId) => {
+    try {
+      const response = await axios.delete(
+        `${apiUrl}/user/edit/delete/${userId}`,
+        { data: { userid: userId } },
+      )
+
+      if (response.data.success) {
+        dispatch({ type: DELETE_USER, payload: userId });
+        return response.data;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   // Context data
   const authContextData = {
@@ -237,6 +334,10 @@ const AuthContextProvider = ({ children }) => {
     increaseRoll,
     followUser,
     unfollowUser,
+    loadAllUser,
+    changeUserRole,
+    loadUser,
+    deleteUser,
     authState,
   };
 

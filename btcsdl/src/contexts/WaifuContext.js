@@ -7,7 +7,9 @@ import {
   ADD_WAIFU,
   FIND_ONE_WAIFU,
   EDIT_WAIFU,
+  RATE_WAIFU,
   DELETE_WAIFU,
+  LOADING_NEW_WAIFU,
 } from "./constants";
 import axios from "axios";
 
@@ -21,6 +23,10 @@ const WaifuContextProvider = ({ children }) => {
     waifus: [],
     waifusLoading: true,
   });
+
+  const setLoadingChange = () => {
+    dispatch({ type: LOADING_NEW_WAIFU });
+  }
 
   // Get all waifus
   const getWaifus = async () => {
@@ -94,10 +100,25 @@ const WaifuContextProvider = ({ children }) => {
     }
   };
 
+  const rateWaifu = async (waifuId) => {
+    try {
+      const response = await axios.patch(
+        `${apiUrl}/waifu/rating/${waifuId.waifuid}`,
+        waifuId
+      );
+      if (response.data.success) {
+        dispatch({ type: RATE_WAIFU, payload: response.data.updatedWaifu });
+        return response.data;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const deleteWaifu = async (waifuId) => {
     try {
       const response = await axios.delete(
-        `${apiUrl}/waifu/delete/${waifuId.waifuid}`,
+        `${apiUrl}/waifu/delete/${waifuId}`,
         { data: { waifuid: waifuId } }
       );
       if (response.data.success) {
@@ -118,6 +139,8 @@ const WaifuContextProvider = ({ children }) => {
     getCertainWaifus,
     editWaifu,
     deleteWaifu,
+    rateWaifu,
+    setLoadingChange,
   };
 
   // Return provider

@@ -40,6 +40,14 @@ const WaifuSchema = new Schema(
         ref: "users",
       },
     ],
+    rating: {
+      five: { type: [Number], default: [] },
+      four: { type: [Number], default: [] },
+      three: { type: [Number], default: [] },
+      two: { type: [Number], default: [] },
+      one: { type: [Number], default: [] },
+    },
+    ratedUser: { type: [Number], default: [] },
   },
   {
     /* _id: false, */

@@ -7,11 +7,13 @@ const PostSchema = new Schema(
     postid: { type: Number },
     postTitle: { type: String, required: true },
     postContent: { type: String, required: true },
-    postImage: { type: String },
+    postImage: { type: [String], default: [] },
     postAuthor: { type: Schema.Types.ObjectId, ref: "users" },
     postLikes: { type: [Number], default: [] },
     hashtag: { type: [String], default: [] },
-    comment: { type: [String], default: [] },
+    type: { type: String, default: 'normal' },
+    videoUrl: { type: String, default: '' },
+    /* comment: { type: [String], default: [] }, */
   },
   {
     timestamps: true,

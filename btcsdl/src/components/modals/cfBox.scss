@@ -1,0 +1,181 @@
+@keyframes messageBoxScaleIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes messageBoxScaleOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+}
+
+@keyframes messageBoxMaskIn {
+  0% {
+    background-color: rgba(0, 0, 0, 0);
+  }
+  100% {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@keyframes messageBoxMaskOut {
+  0% {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    background-color: rgba(0, 0, 0, 0);
+  }
+}
+
+.msg-box-container-in {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #fff;
+  width: 380px;
+  transform: translate(-50%, -50%) scale(1);
+  border-radius: 16px;
+  animation: messageBoxScaleIn 200ms;
+}
+
+.msg-box-container-leave {
+  animation: messageBoxScaleOut 200ms forwards;
+  /* transform: translate(-50%, -50%) scale(0); */
+}
+
+.msg-box-in {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+  display: block;
+  animation: messageBoxMaskIn 200ms;
+  transition: opacity 200ms;
+  z-index: 9999;
+}
+
+.msg-box-leave {
+  animation: messageBoxMaskOut 200ms;
+  /* opacity: 0; */
+}
+
+.msg-box-gone {
+  display: none;
+}
+
+// Modal <=> Dialog
+.dialog-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  // color: rgba(0,0,0,0.85);
+  // font-size: 14px;
+  z-index: 999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.dialog-gone {
+  display: none;
+}
+
+.dialog-wrap {
+  // min-height: 700px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dialog-in {
+  animation: messageBoxMaskIn 200ms;
+}
+
+.dialog-leave {
+  animation: messageBoxMaskOut 200ms;
+  /* opacity: 0; */
+}
+
+.modal-in {
+  animation: messageBoxScaleIn 200ms;
+}
+
+.modal-leave {
+  animation: messageBoxScaleOut 200ms forwards;
+}
+
+.ava-modal {
+  background-color: #fff;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  padding: 8px 16px;
+  width: 525px;
+  max-height: 700px;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  display: block;
+  // transition: all 0.2s ease;
+  // z-index: 990;
+}
+
+.bg-modal {
+  background-color: #fff;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  padding: 8px 16px;
+  width: 625px;
+  max-height: 700px;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  display: block;
+  // transition: all 0.2s ease;
+  // z-index: 990;
+}
+
+.info-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  background: #fff;
+  width: 525px;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  // transition: all 0.2s ease;
+  // z-index: 990;
+  padding: 8px 16px 16px;
+  max-height: 700px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

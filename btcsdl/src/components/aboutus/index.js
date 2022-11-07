@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   HeadContainer,
   HeadSection,
@@ -33,6 +33,10 @@ import Ramu from "../../images/aboutus/chadramu.png";
 import Kiene from "../../images/aboutus/fatramu.png"; */
 
 const AboutUs = () => {
+  useEffect(() => {
+    document.title = "Về chúng tôi"
+  }, [])
+
   return (
     <>
       <HeadContainer>

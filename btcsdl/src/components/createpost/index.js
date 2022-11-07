@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactPlayer from "react-player";
 import {
   Nav,
   NavbarContainer,
@@ -45,12 +46,20 @@ import {
   LeftSideNavLoading,
   LeftSideNavLoadingIcon,
   LeftSideNavLoadingDiv,
+  NewImgIconWrap,
+  NewImgIcon,
+  NewVidIcon,
+  NewVidIconWrap,
+  UserList,
+  WaifuSearchResult,
+  PostsContainer,
+  NavLogoNotLink,
 } from "../profile/pfelement";
 
 import { Loading } from "../Loading";
 
 import Chilling from "../../videos/chillin.gif";
-import LoadingNav from "../../videos/loadingNav.gif"
+import LoadingNav from "../../videos/loadingNav.gif";
 import WebLogo from "../../images/logoweb.png";
 import LeftImage from "../../images/logoroll.svg";
 import Paimoe from "../../images/paiface.png";
@@ -72,10 +81,12 @@ import { AiOutlineCheckCircle } from "react-icons/ai";
 import "../waifudb/waifulist.scss";
 import "../profile/profile.scss";
 import "../profile/title.scss";
+import "../modals/cfBox.scss";
 
 import HutaoAva from "../../images/hutaostick.png";
 import RaidenAva from "../../images/raidenfbi.png";
 import DoggoAva from "../../images/realdoggo.png";
+import DeleteIcon from "../../images/deleteIcon.png";
 
 import { ImgButton, ImgShow } from "../waifudb/waifuElement";
 
@@ -90,13 +101,23 @@ import Timer from "../timer";
 import {
   AllContainer,
   CancelImage,
+  ConfirmVidContainer,
   CreatePostFooter,
   EditorContainer,
   EditorInput,
   EditorMaxCount,
+  FormImgUploadCover,
+  FormImgUploadDelete,
+  FormImgUploadDeleteIcon,
+  FormImgUploaded,
   FormItemContainer,
+  FormItemContainerLabel,
   FormItemLabel,
+  FormUploadImg,
+  FormUploadImgAdd,
+  FormUploadTip,
   HeaderH1,
+  IconImageAdd,
   ImageShowTitle,
   InputDiv,
   InputDivContainer,
@@ -106,11 +127,17 @@ import {
   MainPage,
   MainPageWrp,
   MenuItem,
+  MenuItemNotLink,
   NewArticleEditor,
   NewArticleHeader,
+  NewVideoArticlePreview,
+  NewVideoPreview,
+  NewVideoPreviewWrap,
   PostImageContainer,
   PostImageTitle,
   PreviewPostImage,
+  RemoveVideo,
+  RightContainer,
   RightPart,
   RootPageContainer,
   RootPageLayout,
@@ -120,8 +147,48 @@ import {
   StickyNavLeft,
   StickyNavLeftHolder,
   StickyNavScroll,
+  VideoPlayer,
 } from "./createPostElement";
 import { PostNewArrow } from "../postList/postListEle";
+import useComponentVisible from "../../utils/useComponentVisible";
+import {
+  AutoCompleteItem,
+  AutoCompleteList,
+  SBPHList,
+  SBPHListItem,
+  SBPHTitle,
+  SearchBarPlaceHolder,
+} from "../inputBoxElement";
+import {
+  PHRArrowIcon,
+  PHRLi,
+  PHRLiSpan,
+  PHRSelect,
+  PHRSelectContainer,
+  PHRSelectMenu,
+  PHRSpan,
+  PHRUl,
+  PostDetailHeader,
+  PostHeaderContent,
+  PostHeaderLeft,
+  PostHeaderLeftH1,
+  PostHeaderMain,
+  PostHeaderMask,
+  PostHeaderRight,
+  PostHeaderRightList,
+  PostHeaderWrap,
+} from "../postDetail/postDetailEle";
+import {
+  MessageBoxButton,
+  MessageBoxContent,
+  MessageBoxFooter,
+  MessageBoxHeader,
+} from "../modals/confirmModal";
+import {
+  DialogButton,
+  DialogClose,
+  DialogCloseIcon,
+} from "../waifuinfo/waifuinfoele";
 
 const CreatePost = () => {
   const {
@@ -143,8 +210,14 @@ const CreatePost = () => {
 
   let body;
   let left;
+  let waifuSearchBar;
+
+  const imageInputRef = useRef(null);
 
   const navigate = useNavigate();
+
+  const { ref, isComponentVisible, setIsComponentVisible } =
+    useComponentVisible(false);
 
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -169,15 +242,28 @@ const CreatePost = () => {
   // Controlling NavPostDialog
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Controlling the header bar
+  const [isPHRMenuOn, setIsPHRMenuOn] = useState(false);
+  const [normalPost, setNormalPost] = useState(true);
+  const [picturePost, setPicturePost] = useState(false);
+  const [videoPost, setVideoPost] = useState(false);
+
   // Form Control
   /* const inputFocused = useRef(null) */
   const [isTitleInputFocused, setIsTitleInputFocused] = useState(false);
   const [isTagInputFocused, setIsTagInputFocused] = useState(false);
   const [isContentInputFocused, setIsContentInputFocused] = useState(false);
+  const [isVideoInputFocused, setIsVideoInputFocused] = useState(false);
   const [postTitle, setPostTitle] = useState("");
   const [postTag, setPostTag] = useState("");
   const [postContent, setPostContent] = useState("");
-  const [imageUrl, setImageUrl] = useState(null);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [hasChosenVid, setHasChosenVid] = useState(false);
+  /* const [imageUrl, setImageUrl] = useState(null); */
+  const [imageArr, setImageArr] = useState([]);
+  const [isFixed, setIsFixed] = useState(false);
+  const [nextRoute, setNextRoute] = useState("");
+  const [isRollRouteClicked, setIsRollRouteClicked] = useState(false);
 
   const [rollTimes, setRollTimes] = useState(() => {
     const roll = window.localStorage.getItem(ROLL_STORAGE);
@@ -191,6 +277,10 @@ const CreatePost = () => {
       return parseInt(dead);
     } else return null;
   });
+
+  useEffect(() => {
+    document.title = "Đăng bài viết";
+  }, []);
 
   const startTimer = () => {
     const deadTime = Date.now() + initTimer;
@@ -230,10 +320,16 @@ const CreatePost = () => {
   }, []);
 
   const scrollBtn = () => {
-    if (window.scrollY >= 80) {
-      setVisible(true);
+    if (window.scrollY >= 8) {
+      setIsFixed(true);
+      if (window.scrollY >= 80) {
+        setVisible(true);
+      } else {
+        setVisible(false);
+      }
     } else {
       setVisible(false);
+      setIsFixed(false);
     }
   };
 
@@ -247,6 +343,12 @@ const CreatePost = () => {
 
   const handleOpen = () => {
     setOpen(!open);
+    setIsDialogOpen(false);
+  };
+
+  const handleDialogOpen = () => {
+    setOpen(false);
+    setIsDialogOpen(!isDialogOpen);
   };
 
   const handleSearch = () => {
@@ -255,7 +357,8 @@ const CreatePost = () => {
         item.name.includes(searchValue)
       );
       if (searchIndex !== -1) {
-        navigate(`/waifudb/${waifus[searchIndex].waifuid}`);
+        handleOpenConfirmBox(`/waifudb/${waifus[searchIndex].waifuid}`);
+        /* navigate(`/waifudb/${waifus[searchIndex].waifuid}`); */
       } else {
         setMessage("Không tìm thấy tên waifu!");
         setDesc("Hãy nhập đúng tên waifu muốn tìm");
@@ -271,28 +374,60 @@ const CreatePost = () => {
     }
   };
 
-  const handleCancelImage = () => {
-    setImageUrl(null);
+  const handleCancelImage = (i) => {
+    /* setImageUrl(null); */
+    setImageArr(
+      imageArr.filter((item, index) => {
+        if (index !== i) {
+          return item;
+        }
+      })
+    );
   };
 
   const imageHandler = (e) => {
     const reader = new FileReader();
     reader.onload = () => {
       if (reader.readyState === 2) {
-        setImageUrl(reader.result);
+        /* setImageUrl(reader.result); */
+        setImageArr([...imageArr, reader.result]);
       }
     };
     reader.readAsDataURL(e.target.files[0]);
   };
 
+  const handleNormalPost = () => {
+    setNormalPost(true);
+    setPicturePost(false);
+    setVideoPost(false);
+    setIsPHRMenuOn(false);
+  };
+
+  const handlePicturePost = () => {
+    setNormalPost(false);
+    setPicturePost(true);
+    setVideoPost(false);
+    setIsPHRMenuOn(false);
+  };
+
+  const handleVideoPost = () => {
+    setNormalPost(false);
+    setPicturePost(false);
+    setVideoPost(true);
+    setIsPHRMenuOn(false);
+  };
+
   const handleCreatePost = async () => {
     const tags = postTag.split(",");
+    const postType = picturePost ? "picture" : videoPost ? "video" : "normal";
     try {
       const newPost = await createPost({
         postTitle: postTitle,
         postContent: postContent,
         postTag: tags,
-        postImage: imageUrl,
+        postImage: [...imageArr],
+        type: postType,
+        videoUrl: videoUrl,
       });
 
       if (newPost.success) {
@@ -303,7 +438,10 @@ const CreatePost = () => {
         setPostTitle("");
         setPostContent("");
         setPostTag("");
-        setImageUrl(null);
+        setVideoUrl("");
+        setHasChosenVid(false);
+        /* setImageUrl(null); */
+        setImageArr([]);
         /* const id = setInterval(() => navigate("/postlist"), 3000);
         clearInterval(id); */
         setTimeout(() => navigate("/postlist"), 3000);
@@ -340,7 +478,70 @@ const CreatePost = () => {
     }
   }, [user.avatar]);
 
+  const handleImageInputClick = () => {
+    imageInputRef.current.click();
+  };
+
+  const handleCloseConfirmBox = () => {
+    const messageBoxContainer = document.querySelector(".msg-box-container-in");
+    const messageBox = document.querySelector(".msg-box-in");
+    messageBox.classList.add("msg-box-leave");
+    messageBoxContainer.classList.add("msg-box-container-leave");
+    setTimeout(() => {
+      messageBox.classList.add("msg-box-gone");
+      messageBoxContainer.classList.remove("msg-box-container-leave");
+      messageBox.classList.remove("msg-box-leave");
+    }, 200);
+    if (isRollRouteClicked) setIsRollRouteClicked(false);
+  };
+
+  const handleOpenConfirmBox = (route) => {
+    if (
+      !postTitle &&
+      !postContent &&
+      !postTag &&
+      !videoUrl &&
+      imageArr.length === 0
+    ) {
+      navigate(route);
+    } else {
+      const messageBox = document.querySelector(".msg-box-in");
+      messageBox.classList.remove("msg-box-gone");
+      setNextRoute(route);
+    }
+  };
+
+  const handleOpenConfirmBoxRoll = (route) => {
+    if (
+      !postTitle &&
+      !postContent &&
+      !postTag &&
+      !videoUrl &&
+      imageArr.length === 0
+    ) {
+      startReset();
+      navigate(route);
+    } else {
+      const messageBox = document.querySelector(".msg-box-in");
+      messageBox.classList.remove("msg-box-gone");
+      setIsRollRouteClicked(true);
+      setNextRoute(route);
+    }
+  };
+
+  const handleConfirmBox = () => {
+    if (isRollRouteClicked) startReset();
+    /* setPostTitle("");
+    setPostContent("");
+    setPostTag("");
+    setVideoUrl("");
+    setHasChosenVid(false);
+    setImageArr([]); */
+    navigate(nextRoute);
+  };
+
   if (waifusLoading) {
+    waifuSearchBar = <div style={{ width: "300px" }}></div>;
     left = (
       <LeftSideNav>
         <LeftSideNavLoading>
@@ -350,39 +551,50 @@ const CreatePost = () => {
       </LeftSideNav>
     );
   } else if (waifus.length === 0) {
+    waifuSearchBar = <div style={{ width: "300px" }}></div>;
     left = (
-      <LeftSideNav>
-        <LeftNavWrap to={`/waifudb`}>
+      <>
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox(`/waifudb`)}>
           <LeftImg src={LeftImage} alt="roll-waifu" />
           <LeftItem>Roll Waifu</LeftItem>
-        </LeftNavWrap>
-        <LeftNavWrap to="/postlist">
+        </MenuItemNotLink>
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/postlist")}>
           <Posting />
           <LeftItem>Trang chủ</LeftItem>
-        </LeftNavWrap>
-        <LeftNavWrap to="/waifudb">
+        </MenuItemNotLink>
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/waifudb")}>
           <Database />
           <LeftItem>Waifu Database</LeftItem>
-        </LeftNavWrap>
-        <LeftNavWrap to="/about-us">
+        </MenuItemNotLink>
+        {user.role === "admin" && (
+          <MenuItemNotLink onClick={() => handleOpenConfirmBox("/userlist")}>
+            <UserList />
+            <LeftItem>User Database</LeftItem>
+          </MenuItemNotLink>
+        )}
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/about-us")}>
           <Us />
           <LeftItem>Về chúng tôi</LeftItem>
-        </LeftNavWrap>
-        <LeftNavWrap to="/about-pj">
+        </MenuItemNotLink>
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/about-pj")}>
           <Prj />
           <LeftItem>Về Project</LeftItem>
-        </LeftNavWrap>
-      </LeftSideNav>
+        </MenuItemNotLink>
+      </>
     );
   } else {
     left = (
       <>
-        <MenuItem
+        <MenuItemNotLink
           disabled={rollTimes === 0}
-          onClick={startReset}
-          to={`/waifudb/${
-            waifus[Math.floor(Math.random() * waifus.length)].waifuid
-          }/get`}
+          /* onClick={startReset} */
+          onClick={() => {
+            handleOpenConfirmBoxRoll(
+              `/waifudb/${
+                waifus[Math.floor(Math.random() * waifus.length)].waifuid
+              }/get`
+            );
+          }}
         >
           <LeftImg src={LeftImage} alt="roll-waifu" />
           <LeftItem>
@@ -396,24 +608,95 @@ const CreatePost = () => {
               `Roll Waifu (${rollTimes})`
             )}
           </LeftItem>
-        </MenuItem>
-        <MenuItem to="/postlist">
+        </MenuItemNotLink>
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/postlist")}>
           <Posting />
           <LeftItem>Trang chủ</LeftItem>
-        </MenuItem>
-        <MenuItem to="/waifudb">
+        </MenuItemNotLink>
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/waifudb")}>
           <Database />
           <LeftItem>Waifu Database</LeftItem>
-        </MenuItem>
-        <MenuItem to="/about-us">
+        </MenuItemNotLink>
+        {user.role === "admin" && (
+          <MenuItemNotLink onClick={() => handleOpenConfirmBox("/userlist")}>
+            <UserList />
+            <LeftItem>User Database</LeftItem>
+          </MenuItemNotLink>
+        )}
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/about-us")}>
           <Us />
           <LeftItem>Về chúng tôi</LeftItem>
-        </MenuItem>
-        <MenuItem to="/about-pj">
+        </MenuItemNotLink>
+        <MenuItemNotLink onClick={() => handleOpenConfirmBox("/about-pj")}>
           <Prj />
           <LeftItem>Về Project</LeftItem>
-        </MenuItem>
+        </MenuItemNotLink>
       </>
+    );
+
+    waifuSearchBar = (
+      <SearchBarContainer>
+        <SearchBarIcon />
+        <SearchBar
+          type="text"
+          placeholder="Nhập tên waifu muốn tìm"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          autoComplete="off"
+          onClick={() => setIsComponentVisible(true)}
+          ref={ref}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+        />
+        <WaifuSearchResult
+          isDisplay={isComponentVisible}
+          onClick={() => setIsComponentVisible(true)}
+        >
+          {searchValue !== "" ? (
+            <AutoCompleteList isDisplay={isComponentVisible}>
+              <AutoCompleteItem
+                onClick={() => handleSearch()}
+              >{`Tìm kiếm "${searchValue}"`}</AutoCompleteItem>
+            </AutoCompleteList>
+          ) : (
+            <div>
+              <SearchBarPlaceHolder>
+                <SBPHTitle>Gợi ý tìm kiếm</SBPHTitle>
+                <SBPHList>
+                  {waifus.map((item, iter) => {
+                    if (waifus.length >= 9) {
+                      if (iter <= 8) {
+                        return (
+                          <div
+                            onClick={() =>
+                              handleOpenConfirmBox(`/waifudb/${item.waifuid}`)
+                            }
+                          >
+                            <SBPHListItem>{item.name}</SBPHListItem>
+                          </div>
+                        );
+                      }
+                    } else {
+                      return (
+                        <div
+                          onClick={() =>
+                            handleOpenConfirmBox(`/waifudb/${item.waifuid}`)
+                          }
+                        >
+                          <SBPHListItem>{item.name}</SBPHListItem>
+                        </div>
+                      );
+                    }
+                  })}
+                </SBPHList>
+              </SearchBarPlaceHolder>
+            </div>
+          )}
+        </WaifuSearchResult>
+      </SearchBarContainer>
     );
   }
 
@@ -429,10 +712,10 @@ const CreatePost = () => {
         </ToTopButton>
         <Nav>
           <NavbarContainer>
-            <NavLogo to="/postlist">
+            <NavLogoNotLink onClick={() => handleOpenConfirmBox("/postlist")}>
               <Img src={WebLogo} alt="weblogo" />
-            </NavLogo>
-            <SearchBarContainer>
+            </NavLogoNotLink>
+            {/* <SearchBarContainer>
               <SearchBarIcon />
               <SearchBar
                 type="text"
@@ -446,10 +729,11 @@ const CreatePost = () => {
                   }
                 }}
               />
-            </SearchBarContainer>
+            </SearchBarContainer> */}
+            {waifuSearchBar}
             <NavRightPart>
               <PostIconNavContainer>
-                <PostIconNavWrap onClick={() => setIsDialogOpen(!isDialogOpen)}>
+                <PostIconNavWrap onClick={handleDialogOpen}>
                   <PostIconNav />
                 </PostIconNavWrap>
                 <NavPostDialog isTurnOn={isDialogOpen}>
@@ -458,12 +742,37 @@ const CreatePost = () => {
                       <NavPostNewContent>
                         <NavPostNewItem>
                           <DialogPostButton
-                            onClick={() => navigate("/createpost")}
+                            /* onClick={() => navigate("/createpost")} */
+                            onClick={() => handleOpenConfirmBox("/createpost")}
                           >
                             <NewPostIconWrap>
                               <NewPostIcon />
                             </NewPostIconWrap>
-                            <DialogSpan>Đăng bài viết</DialogSpan>
+                            <DialogSpan>Đăng bài</DialogSpan>
+                            <PostNewArrow />
+                          </DialogPostButton>
+                        </NavPostNewItem>
+                        <NavPostNewItem>
+                          <DialogPostButton
+                            /* onClick={() => navigate("/createpost")} */
+                            onClick={() => handleOpenConfirmBox("/createpost")}
+                          >
+                            <NewImgIconWrap>
+                              <NewImgIcon />
+                            </NewImgIconWrap>
+                            <DialogSpan>Hình ảnh</DialogSpan>
+                            <PostNewArrow />
+                          </DialogPostButton>
+                        </NavPostNewItem>
+                        <NavPostNewItem>
+                          <DialogPostButton
+                            /* onClick={() => navigate("/createpost")} */
+                            onClick={() => handleOpenConfirmBox("/createpost")}
+                          >
+                            <NewVidIconWrap>
+                              <NewVidIcon />
+                            </NewVidIconWrap>
+                            <DialogSpan>Video</DialogSpan>
                             <PostNewArrow />
                           </DialogPostButton>
                         </NavPostNewItem>
@@ -481,7 +790,10 @@ const CreatePost = () => {
             {open && (
               <div className="dropdown">
                 <div className="my-info">Thông tin của tôi</div>
-                <LinkRouter to={`/user/${user.userid}`} className="menu-item">
+                <div
+                  onClick={() => handleOpenConfirmBox(`/user/${user.userid}`)}
+                  className="menu-item"
+                >
                   <span className="icon-left">
                     <GrUserSettings />
                   </span>
@@ -489,7 +801,7 @@ const CreatePost = () => {
                   <span className="icon-right">
                     <MdKeyboardArrowRight />
                   </span>
-                </LinkRouter>
+                </div>
                 <div onClick={handleLogout} className="menu-item">
                   <span className="icon-left">
                     <RiLogoutBoxLine />
@@ -514,12 +826,66 @@ const CreatePost = () => {
         </StickyNavLeft>
         <RootPageContainer>
           <RootPageLayout>
-            <MainPageWrp>
-              <NewArticleHeader>
+            <MainPage>
+              <PostDetailHeader>
+                <PostHeaderMask isFixed={isFixed}>
+                  <PostHeaderWrap isLined={isFixed}>
+                    <PostHeaderContent isLined={isFixed}>
+                      <PostHeaderMain>
+                        <PostHeaderLeft>
+                          <PostHeaderLeftH1>Tạo bài viết</PostHeaderLeftH1>
+                        </PostHeaderLeft>
+                        <PostHeaderRight>
+                          <PostHeaderRightList>
+                            <PHRSelect>
+                              <PHRSelectContainer
+                                onClick={() => setIsPHRMenuOn(!isPHRMenuOn)}
+                              >
+                                <PHRSpan>
+                                  {normalPost
+                                    ? "Đăng bài"
+                                    : picturePost
+                                    ? "Đăng ảnh"
+                                    : "Đăng video"}
+                                </PHRSpan>
+                                <PHRArrowIcon isSelected={isPHRMenuOn} />
+                              </PHRSelectContainer>
+                              <PHRSelectMenu isSelected={isPHRMenuOn}>
+                                <PHRUl>
+                                  <PHRLi
+                                    isSelected={normalPost}
+                                    onClick={handleNormalPost}
+                                  >
+                                    <PHRLiSpan>Đăng bài</PHRLiSpan>
+                                  </PHRLi>
+                                  <PHRLi
+                                    isSelected={picturePost}
+                                    onClick={handlePicturePost}
+                                  >
+                                    <PHRLiSpan>Đăng ảnh</PHRLiSpan>
+                                  </PHRLi>
+                                  <PHRLi
+                                    isSelected={videoPost}
+                                    onClick={handleVideoPost}
+                                  >
+                                    <PHRLiSpan>Đăng video</PHRLiSpan>
+                                  </PHRLi>
+                                </PHRUl>
+                              </PHRSelectMenu>
+                            </PHRSelect>
+                          </PostHeaderRightList>
+                        </PostHeaderRight>
+                      </PostHeaderMain>
+                    </PostHeaderContent>
+                  </PostHeaderWrap>
+                </PostHeaderMask>
+              </PostDetailHeader>
+              {/* <NewArticleHeader>
                 <HeaderH1>Tạo bài viết mới</HeaderH1>
-              </NewArticleHeader>
+              </NewArticleHeader> */}
+              {/* <NewArticleEditor></NewArticleEditor> */}
               <NewArticleEditor>
-                <FormItemContainer>
+                <FormItemContainer style={{ marginTop: "16px" }}>
                   <FormItemLabel>Title bài viết</FormItemLabel>
                   <InputDiv>
                     <InputDivContainer borderChange={isTitleInputFocused}>
@@ -568,8 +934,7 @@ const CreatePost = () => {
                     </InputDivContainer>
                   </InputDiv>
                 </FormItemContainer>
-                <FormItemContainer>
-                  <PostImageContainer>
+                {/* <PostImageContainer>
                     <PostImageTitle>Ảnh đính kèm</PostImageTitle>
                     <ImgButton htmlFor="select-image">
                       <input
@@ -590,34 +955,158 @@ const CreatePost = () => {
                       <ImageShowTitle>Preview ảnh đã chọn:</ImageShowTitle>
                       <PreviewPostImage src={imageUrl} alt="char-image" />
                     </ImgShow>
-                  )}
-                </FormItemContainer>
+                  )} */}
+                {picturePost ? (
+                  <FormItemContainer>
+                    <FormItemLabel>Tải lên hình ảnh</FormItemLabel>
+                    <FormUploadTip>
+                      Cùng lúc có thể tải lên tối đa 20 ảnh (Định dạng .jpg,
+                      .png, .jpeg, .gif, kích thước đề xuất trên 420 pixel)
+                    </FormUploadTip>
+                    <FormUploadImg>
+                      {imageArr.map((item, index) => (
+                        <FormImgUploaded image={item}>
+                          <FormImgUploadDelete>
+                            <FormImgUploadDeleteIcon
+                              src={DeleteIcon}
+                              alt="delete-uploaded"
+                              onClick={() => handleCancelImage(index)}
+                            />
+                          </FormImgUploadDelete>
+                          {/* <FormImgUploadCover></FormImgUploadCover> */}
+                        </FormImgUploaded>
+                      ))}
+                      <FormUploadImgAdd
+                        htmlFor="select-image"
+                        onClick={handleImageInputClick}
+                      >
+                        <IconImageAdd />
+                        <input
+                          ref={imageInputRef}
+                          accept="image/*"
+                          type="file"
+                          id="select-image"
+                          multiple="multiple"
+                          style={{ display: "none" }}
+                          onChange={imageHandler}
+                        />
+                      </FormUploadImgAdd>
+                    </FormUploadImg>
+                  </FormItemContainer>
+                ) : videoPost ? (
+                  !hasChosenVid ? (
+                    <FormItemContainer>
+                      <FormItemLabel>Tải video</FormItemLabel>
+                      <InputDiv>
+                        <InputDivContainer borderChange={isVideoInputFocused}>
+                          <InputText
+                            type="text" /* 
+                          maxLength="200" */
+                            placeholder="Vui lòng nhập liên kết (YouTube, TikTok...)"
+                            value={videoUrl}
+                            onChange={(e) => setVideoUrl(e.target.value)}
+                            onBlur={() => setIsVideoInputFocused(false)}
+                            onFocus={() => setIsVideoInputFocused(true)}
+                          />
+                          {/* <InputMaxCount>{postTag.length}/200</InputMaxCount> */}
+                        </InputDivContainer>
+                      </InputDiv>
+                      <ConfirmVidContainer>
+                        <SavePostButton
+                          onClick={() => {
+                            if (!videoUrl) {
+                              setMessage("Chưa có URL!");
+                              setDesc("Hãy nhập URL rồi nhấn nút xác nhận");
+                              setType("error");
+                              myFunction();
+                            } else setHasChosenVid(true);
+                          }}
+                        >
+                          Xác nhận
+                        </SavePostButton>
+                      </ConfirmVidContainer>
+                    </FormItemContainer>
+                  ) : (
+                    <FormItemContainer>
+                      <FormItemLabel>Video</FormItemLabel>
+                      <NewVideoArticlePreview>
+                        <NewVideoPreviewWrap>
+                          <NewVideoPreview>
+                            <VideoPlayer>
+                              <ReactPlayer
+                                url={videoUrl}
+                                width="100%"
+                                height="100%"
+                                controls={true}
+                              />
+                            </VideoPlayer>
+                          </NewVideoPreview>
+                          <RemoveVideo
+                            onClick={() => {
+                              setHasChosenVid(false);
+                              setVideoUrl("");
+                            }}
+                          >
+                            <span>Xóa video</span>
+                          </RemoveVideo>
+                        </NewVideoPreviewWrap>
+                      </NewVideoArticlePreview>
+                    </FormItemContainer>
+                  )
+                ) : (
+                  <></>
+                )}
+
                 <CreatePostFooter>
                   <SavePostButton onClick={handleCreatePost}>
                     Đăng bài
                   </SavePostButton>
                 </CreatePostFooter>
               </NewArticleEditor>
-            </MainPageWrp>
-            <RightPart>
-              <ContactHeader>
-                <ContactTitle>Liên lạc với chúng tôi</ContactTitle>
-              </ContactHeader>
-              <MailWrap>
-                <MailTitle>Liên hệ</MailTitle>
-              </MailWrap>
-              <MailCard>
-                <EmailAdd>abc@gmail.com</EmailAdd>
-                <EmailOwner>Ramu</EmailOwner>
-              </MailCard>
-              <ContactFooter>
-                <PaiFace src={Paimoe} alt="pai-logo" />
-                <CopyRight>All Rights Reserved.</CopyRight>
-              </ContactFooter>
-            </RightPart>
+            </MainPage>
+            <div className="page-holder"></div>
+            <RightContainer>
+              <RightPart>
+                <ContactHeader>
+                  <ContactTitle>Liên lạc với chúng tôi</ContactTitle>
+                </ContactHeader>
+                <MailWrap>
+                  <MailTitle>Liên hệ</MailTitle>
+                </MailWrap>
+                <MailCard>
+                  <EmailAdd>abc@gmail.com</EmailAdd>
+                  <EmailOwner>Ramu</EmailOwner>
+                </MailCard>
+                <ContactFooter>
+                  <PaiFace src={Paimoe} alt="pai-logo" />
+                  <CopyRight>All Rights Reserved.</CopyRight>
+                </ContactFooter>
+              </RightPart>
+            </RightContainer>
           </RootPageLayout>
         </RootPageContainer>
       </AllContainer>
+
+      <div className="msg-box-in msg-box-gone">
+        <div className="msg-box-container-in">
+          <MessageBoxHeader>
+            <DialogClose onClick={handleCloseConfirmBox}>
+              <DialogButton>
+                <DialogCloseIcon />
+              </DialogButton>
+            </DialogClose>
+          </MessageBoxHeader>
+          <MessageBoxContent>Xác nhận bỏ đăng bài?</MessageBoxContent>
+          <MessageBoxFooter>
+            <MessageBoxButton onClick={handleCloseConfirmBox} notClose={false}>
+              <span>Hủy</span>
+            </MessageBoxButton>
+            <MessageBoxButton onClick={handleConfirmBox} notClose={true}>
+              <span>Xác nhận</span>
+            </MessageBoxButton>
+          </MessageBoxFooter>
+        </div>
+      </div>
 
       <div id="snackbar">
         <Toast>

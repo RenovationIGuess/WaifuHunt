@@ -21,7 +21,14 @@ router.get("/", async (req, res) => {
 
 // POST - createPost
 router.post("/create", verifyToken, async (req, res) => {
-  const { postTitle, postContent, postTag, postImage } = req.body;
+  const { 
+    postTitle, 
+    postContent, 
+    postTag, 
+    postImage, 
+    type, 
+    videoUrl,
+  } = req.body;
   if (!postTitle || !postContent) {
     return res.status(400).json({
       success: false,
@@ -33,6 +40,8 @@ router.post("/create", verifyToken, async (req, res) => {
     postTitle,
     postContent,
     postImage,
+    type,
+    videoUrl,
   });
   newCreatedPost.hashtag = [...postTag];
   newCreatedPost.postAuthor = user._id;
@@ -95,11 +104,11 @@ router.patch("/unlike/:id", verifyToken, async (req, res) => {
 });
 
 // PATCH: handle when a user post a comment
-router.patch("/comment/:id", verifyToken, async (req, res) => {
+/* router.patch("/comment/:id", verifyToken, async (req, res) => {
   try {
     const commentValue = req.body.comment;
     const postToComment = await Post.findOne({ postid: req.body.postid });
-    /* const user = await User.findById(req.userId); */
+    // const user = await User.findById(req.userId);
     postToComment.comment.push(commentValue);
 
     const updatedPost = await postToComment.save();
@@ -111,16 +120,31 @@ router.patch("/comment/:id", verifyToken, async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
-});
+}); */
 
 // PATCH: edit post
 router.patch("/edit/:id", async (req, res) => {
   const postToEdit = await Post.findOne({ postid: req.body.postid });
-  const { postTitle, postContent, postTag, postImage } = req.body;
+  const { 
+    postTitle, 
+    postContent, 
+    postTag, 
+    postImage, 
+    type, 
+    videoUrl, 
+  } = req.body;
   if (postTitle !== "") postToEdit.postTitle = postTitle;
   if (postContent !== "") postToEdit.postContent = postContent;
   if (postTag.length !== 0) postToEdit.hashtag = [...postTag];
-  if (postImage !== null) postToEdit.postImage = postImage;
+  if (postImage.length !== 0) {
+    postToEdit.postImage = [...postImage];
+    postToEdit.videoUrl = "";
+  };
+  if (videoUrl !== "") {
+    postToEdit.postImage = [];
+    postToEdit.videoUrl = videoUrl;
+  }
+  if (type !== postToEdit.type) postToEdit.type = type;
   try {
     const updatedPost = await postToEdit.save();
     res.status(200).json({
@@ -132,6 +156,23 @@ router.patch("/edit/:id", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// PATCH: delete a post comment
+/* router.patch("/delete/cmt/:id", async (req, res) => {
+  try {
+    const postToEdit = await Post.findOne({ postid: req.body.postid });
+    postToEdit.comment = postToEdit.comment.filter((c) => c !== req.body.value);
+
+    const updatedPost = await postToEdit.save();
+    res.status(200).json({
+      success: true,
+      message: "Xóa comment thành công!",
+      updatedPost,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}); */
 
 // DELETE: delete a post
 router.delete("/delete/:id", async (req, res) => {

@@ -4,12 +4,19 @@ import {
   ADD_WAIFU,
   FIND_ONE_WAIFU,
   EDIT_WAIFU,
+  RATE_WAIFU,
   DELETE_WAIFU,
+  LOADING_NEW_WAIFU,
 } from "../contexts/constants";
 
 export const waifuReducer = (state, action) => {
   const { type, payload } = action;
   switch (type) {
+    case LOADING_NEW_WAIFU:
+      return {
+        ...state,
+        waifuLoading: true,
+      }
     case WAIFU_LOADED_SUCCESS:
       return {
         ...state,
@@ -37,6 +44,23 @@ export const waifuReducer = (state, action) => {
       return {
         ...state,
         waifu: {...state.waifu, ...payload},
+        waifus: state.waifus.map((item) => {
+          if (item.waifuid === payload.waifuid) {
+            item = {...item, ...payload}
+          }
+          return item;
+        })
+      }
+    case RATE_WAIFU:
+      return {
+        ...state,
+        waifu: {...state.waifu, ...payload},
+        waifus: state.waifus.map((item) => {
+          if (item.waifuid === payload.waifuid) {
+            item = {...item, ...payload}
+          }
+          return item;
+        })
       }
     case DELETE_WAIFU:
       return {

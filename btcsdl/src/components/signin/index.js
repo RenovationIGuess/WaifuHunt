@@ -62,6 +62,10 @@ function SignIn() {
     }
   })
 
+  useEffect(() => {
+    document.title = "Đăng nhập | Đăng ký"
+  }, [])
+
   const handleSubmitLog = async () => {
     try {
       const loginData = await loginUser({
